@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -42,7 +43,8 @@ public class ImgShr extends Activity
 		TextView text = (TextView) findViewById(R.id.url);
 
 		String slug = ((EditText) findViewById(R.id.slug)).getText().toString();
-		String url  = "https://imgshr.orgizm.net/api/!" + slug;
+		// String url  = "https://imgshr.orgizm.net/api/!" + slug;
+		String url  = "https://imgshr.orgizm.net/api/!a";
 
 		if (imageUri != null) {
 			text.setText(imageUri.toString());
@@ -78,20 +80,27 @@ public class ImgShr extends Activity
 			// Install the all-trusting host verifier
 			HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
 
+			String param    = "picture[image][]";
+			String filename = "foo.jpg";
+			String boundary = "*****";
+			String crlf     = "\r\n";
+			String header   = "Content-Disposition: form-data; name=\"" + param + "\"; filename=\"" + filename + "\"" + crlf;
+
 			HttpsURLConnection conn = (HttpsURLConnection) (new URL(url)).openConnection();
 
 			try {
 				conn.setDoOutput(true);
 				conn.setChunkedStreamingMode(0);
 
+				conn.setRequestMethod("POST");
+				conn.setRequestProperty("Connection", "Keep-Alive");
+				conn.setRequestProperty("ENCTYPE", "multipart/form-data");
+				conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+				conn.setRequestProperty(param, filename);
+
 				OutputStream out = new BufferedOutputStream(conn.getOutputStream());
-				InputStream in   = new BufferedInputStream(conn.getInputStream());
 
-				String boundary = "--*****\r\n";
-				String header   = "Content-Disposition: form-data; name=\"picture[image][]\"; filename=\"foo.jpg\"\r\n";
-				String crlf     = "\r\n";
-
-				out.write(boundary.getBytes());
+				out.write(("--" + boundary + crlf).getBytes());
 				out.write(header.getBytes());
 				out.write(crlf.getBytes());
 
@@ -101,7 +110,21 @@ public class ImgShr extends Activity
 					out.write(buffer, 0, bytesRead);
 				}
 
+				out.write(crlf.getBytes());
+				out.write(("--" + boundary + "--" + crlf).getBytes());
+
 				out.flush();
+				out.close();
+
+				int responseCode = 0;
+				responseCode = conn.getResponseCode();
+				String responseMessage = conn.getResponseMessage();
+
+				Log.i("net.orgizm.imgshr", "HTTP Response: " + responseCode + " " + responseMessage);
+
+				if(responseCode == 200) {
+					text.setText("" + responseCode + " " + responseMessage);
+				}
 			}
 			finally {
 				conn.disconnect();

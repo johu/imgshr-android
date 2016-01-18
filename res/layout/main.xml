@@ -5,12 +5,6 @@
     android:layout_height="fill_parent"
     >
 
-	<TextView
-		android:id="@+id/url"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		/>
-
 	<EditText
 		android:id="@+id/slug"
 		android:layout_width="fill_parent"
@@ -25,5 +19,11 @@
 		android:layout_width="wrap_content"
 		android:text="@string/upload_button"
 		android:onClick="uploadImage"
+		/>
+
+	<TextView
+		android:id="@+id/url"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
 		/>
 </LinearLayout>
