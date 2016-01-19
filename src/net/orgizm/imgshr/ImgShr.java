@@ -48,7 +48,6 @@ public class ImgShr extends Activity
 		String url  = "http://10.0.2.2:3000/api/!a";
 
 		if (imageUri != null) {
-			text.setText(imageUri.toString());
 			InputStream file = getContentResolver().openInputStream(imageUri);
 
 			/*
@@ -88,6 +87,7 @@ public class ImgShr extends Activity
 			String boundary = "*****";
 			String crlf     = "\r\n";
 			String cd       = "Content-Disposition: form-data; name=\"" + param + "\"; filename=\"" + filename + "\"" + crlf;
+			String ct       = "Content-Type: image/jpeg" + crlf;
 
 			HttpURLConnection conn = (HttpURLConnection) (new URL(url)).openConnection();
 
@@ -103,6 +103,7 @@ public class ImgShr extends Activity
 
 				out.write(("--" + boundary + crlf).getBytes());
 				out.write(cd.getBytes());
+				out.write(ct.getBytes());
 				out.write(crlf.getBytes());
 
 				byte[] buffer = new byte[256];
@@ -115,7 +116,6 @@ public class ImgShr extends Activity
 				out.write(("--" + boundary + "--" + crlf).getBytes());
 
 				out.flush();
-				out.close();
 
 				int responseCode = 0;
 				responseCode = conn.getResponseCode();
@@ -123,9 +123,7 @@ public class ImgShr extends Activity
 
 				Log.i("net.orgizm.imgshr", "HTTP Response: " + responseCode + " " + responseMessage);
 
-				if(responseCode == 200) {
-					text.setText("" + responseCode + " " + responseMessage);
-				}
+				text.setText("" + responseCode + " " + responseMessage);
 			}
 			finally {
 				conn.disconnect();
