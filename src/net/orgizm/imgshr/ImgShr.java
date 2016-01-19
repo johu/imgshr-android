@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -32,32 +34,47 @@ public class ImgShr extends Activity
 {
 	Intent intent;
 
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
 
 		intent = getIntent();
-    }
 
-	public String getFileName(ContentResolver cr, Uri uri) {
+		EditText input = (EditText) findViewById(R.id.slug);
+		input.setText(getLastSlug(), TextView.BufferType.EDITABLE);
+	}
+
+	private String getFileName(ContentResolver cr, Uri uri) {
 		String[] projection = {MediaStore.MediaColumns.DISPLAY_NAME};
-        Cursor metaCursor = cr.query(uri, projection, null, null, null);
+		Cursor metaCursor = cr.query(uri, projection, null, null, null);
 		String fileName = null;
 
-        if (metaCursor != null) {
-            try {
-                if (metaCursor.moveToFirst()) {
-                    fileName = metaCursor.getString(0);
-                }
-            } finally {
-                metaCursor.close();
-            }
-        }
+		if (metaCursor != null) {
+			try {
+				if (metaCursor.moveToFirst()) {
+					fileName = metaCursor.getString(0);
+				}
+ 			}
+			finally {
+				metaCursor.close();
+			}
+		}
 
 		return fileName;
+	}
+
+	private String getLastSlug() {
+		SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+		return pref.getString("lastSlug", "");
+	}
+
+	private void setLastSlug(String slug) {
+		SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
+		editor.putString("lastSlug", slug);
+		editor.commit();
 	}
 
 	public void uploadImageCallback(View view) throws Exception {
@@ -87,12 +104,14 @@ public class ImgShr extends Activity
 		}).start();
 	}
 
-	public String uploadImage() throws Exception {
-		Uri imageUri  = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+	private String uploadImage() throws Exception {
+		Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
 
 		String slug = ((EditText) findViewById(R.id.slug)).getText().toString();
-		// String url  = "https://imgshr.orgizm.net/api/!" + slug;
-		String url  = "http://10.0.2.2:3000/api/!a";
+		setLastSlug(slug);
+
+		// String url = "https://imgshr.orgizm.net/api/!" + slug;
+		String url = "http://10.0.2.2:3000/api/!" + slug;
 
 		String message = null;
 
