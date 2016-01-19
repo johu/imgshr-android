@@ -3,8 +3,11 @@ package net.orgizm.imgshr;
 import android.app.Activity;
 import android.os.Bundle;
 
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -39,16 +42,63 @@ public class ImgShr extends Activity
 		intent = getIntent();
     }
 
-	public void uploadImage(View view) throws Exception {
+	public String getFileName(ContentResolver cr, Uri uri) {
+		String[] projection = {MediaStore.MediaColumns.DISPLAY_NAME};
+        Cursor metaCursor = cr.query(uri, projection, null, null, null);
+		String fileName = null;
+
+        if (metaCursor != null) {
+            try {
+                if (metaCursor.moveToFirst()) {
+                    fileName = metaCursor.getString(0);
+                }
+            } finally {
+                metaCursor.close();
+            }
+        }
+
+		return fileName;
+	}
+
+	public void uploadImageCallback(View view) throws Exception {
+		final TextView text = (TextView) findViewById(R.id.url);
+
+		new Thread(new Runnable() {
+			public void run() {
+				runOnUiThread(new Runnable() {
+					public void run() {
+						text.setText("Uploading...");
+					}
+				});
+
+				try {
+					final String message = uploadImage();
+
+					runOnUiThread(new Runnable() {
+						public void run() {
+							text.setText(message);
+						}
+					});
+				}
+				catch (Exception e) {
+					Log.d("net.orgizm.imgshr", e.getMessage());
+				}
+			}
+		}).start();
+	}
+
+	public String uploadImage() throws Exception {
 		Uri imageUri  = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-		TextView text = (TextView) findViewById(R.id.url);
 
 		String slug = ((EditText) findViewById(R.id.slug)).getText().toString();
 		// String url  = "https://imgshr.orgizm.net/api/!" + slug;
 		String url  = "http://10.0.2.2:3000/api/!a";
 
+		String message = null;
+
 		if (imageUri != null) {
-			InputStream file = getContentResolver().openInputStream(imageUri);
+			ContentResolver cr = getContentResolver();
+			InputStream file = cr.openInputStream(imageUri);
 
 			/*
 			// Create a trust manager that does not validate certificate chains
@@ -83,12 +133,13 @@ public class ImgShr extends Activity
 			*/
 
 			String param    = "picture[image][]";
-			String filename = "foo.jpg";
+			String filename = getFileName(cr, imageUri);
 			String boundary = "*****";
 			String crlf     = "\r\n";
 			String cd       = "Content-Disposition: form-data; name=\"" + param + "\"; filename=\"" + filename + "\"" + crlf;
-			String ct       = "Content-Type: image/jpeg" + crlf;
+			String ct       = "Content-Type: " + cr.getType(imageUri) + crlf;
 
+			// HttpsURLConnection conn = (HttpsURLConnection) (new URL(url)).openConnection();
 			HttpURLConnection conn = (HttpURLConnection) (new URL(url)).openConnection();
 
 			try {
@@ -123,11 +174,13 @@ public class ImgShr extends Activity
 
 				Log.i("net.orgizm.imgshr", "HTTP Response: " + responseCode + " " + responseMessage);
 
-				text.setText("" + responseCode + " " + responseMessage);
+				message = responseCode + " " + responseMessage;
 			}
 			finally {
 				conn.disconnect();
 			}
 		}
+
+		return message;
 	}
 }
