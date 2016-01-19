@@ -18,7 +18,8 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
+import java.net.HttpURLConnection;
+// import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
@@ -44,12 +45,13 @@ public class ImgShr extends Activity
 
 		String slug = ((EditText) findViewById(R.id.slug)).getText().toString();
 		// String url  = "https://imgshr.orgizm.net/api/!" + slug;
-		String url  = "https://imgshr.orgizm.net/api/!a";
+		String url  = "http://10.0.2.2:3000/api/!a";
 
 		if (imageUri != null) {
 			text.setText(imageUri.toString());
 			InputStream file = getContentResolver().openInputStream(imageUri);
 
+			/*
 			// Create a trust manager that does not validate certificate chains
 			TrustManager[] trustAllCerts = new TrustManager[] {
 				new X509TrustManager() {
@@ -79,14 +81,15 @@ public class ImgShr extends Activity
 	 
 			// Install the all-trusting host verifier
 			HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+			*/
 
 			String param    = "picture[image][]";
 			String filename = "foo.jpg";
 			String boundary = "*****";
 			String crlf     = "\r\n";
-			String header   = "Content-Disposition: form-data; name=\"" + param + "\"; filename=\"" + filename + "\"" + crlf;
+			String cd       = "Content-Disposition: form-data; name=\"" + param + "\"; filename=\"" + filename + "\"" + crlf;
 
-			HttpsURLConnection conn = (HttpsURLConnection) (new URL(url)).openConnection();
+			HttpURLConnection conn = (HttpURLConnection) (new URL(url)).openConnection();
 
 			try {
 				conn.setDoOutput(true);
@@ -94,14 +97,12 @@ public class ImgShr extends Activity
 
 				conn.setRequestMethod("POST");
 				conn.setRequestProperty("Connection", "Keep-Alive");
-				conn.setRequestProperty("ENCTYPE", "multipart/form-data");
 				conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-				conn.setRequestProperty(param, filename);
 
 				OutputStream out = new BufferedOutputStream(conn.getOutputStream());
 
 				out.write(("--" + boundary + crlf).getBytes());
-				out.write(header.getBytes());
+				out.write(cd.getBytes());
 				out.write(crlf.getBytes());
 
 				byte[] buffer = new byte[256];
