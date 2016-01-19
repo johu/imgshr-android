@@ -1,2 +1,3 @@
-# imgshr-android
-Android app for uploading images to IMGSHR.
+# IMGSHR Android
+
+Android app for uploading images to IMGSHR via share action.
