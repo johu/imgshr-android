@@ -24,7 +24,7 @@ import java.net.URL;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.HostnameVerifier;
 import java.net.HttpURLConnection;
-// import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
@@ -32,6 +32,7 @@ import javax.net.ssl.X509TrustManager;
 
 public class ImgShr extends Activity
 {
+	Boolean DEBUG = false;
 	Intent intent;
 
 	/** Called when the activity is first created. */
@@ -110,8 +111,10 @@ public class ImgShr extends Activity
 		String slug = ((EditText) findViewById(R.id.slug)).getText().toString();
 		setLastSlug(slug);
 
-		// String url = "https://imgshr.orgizm.net/api/!" + slug;
-		String url = "http://10.0.2.2:3000/api/!" + slug;
+		String url = "https://imgshr.orgizm.net/api/!" + slug;
+		if(DEBUG) {
+			url = "http://10.0.2.2:3000/api/!" + slug;
+		}
 
 		String message = null;
 
@@ -119,37 +122,37 @@ public class ImgShr extends Activity
 			ContentResolver cr = getContentResolver();
 			InputStream file = cr.openInputStream(imageUri);
 
-			/*
-			// Create a trust manager that does not validate certificate chains
-			TrustManager[] trustAllCerts = new TrustManager[] {
-				new X509TrustManager() {
-					public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-						return null;
-					}
+			if(!DEBUG) {
+				// Create a trust manager that does not validate certificate chains
+				TrustManager[] trustAllCerts = new TrustManager[] {
+					new X509TrustManager() {
+						public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+							return null;
+						}
 
-					public void checkClientTrusted(X509Certificate[] certs, String authType) {
-					}
+						public void checkClientTrusted(X509Certificate[] certs, String authType) {
+						}
 
-					public void checkServerTrusted(X509Certificate[] certs, String authType) {
+						public void checkServerTrusted(X509Certificate[] certs, String authType) {
+						}
 					}
-				}
-			};
-	 
-			// Install the all-trusting trust manager
-			SSLContext sc = SSLContext.getInstance("SSL");
-			sc.init(null, trustAllCerts, new java.security.SecureRandom());
-			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-	 
-			// Create all-trusting host name verifier
-			HostnameVerifier allHostsValid = new HostnameVerifier() {
-				public boolean verify(String hostname, SSLSession session) {
-					return true;
-				}
-			};
-	 
-			// Install the all-trusting host verifier
-			HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-			*/
+				};
+		 
+				// Install the all-trusting trust manager
+				SSLContext sc = SSLContext.getInstance("SSL");
+				sc.init(null, trustAllCerts, new java.security.SecureRandom());
+				HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+		 
+				// Create all-trusting host name verifier
+				HostnameVerifier allHostsValid = new HostnameVerifier() {
+					public boolean verify(String hostname, SSLSession session) {
+						return true;
+					}
+				};
+		 
+				// Install the all-trusting host verifier
+				HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+			}
 
 			String param    = "picture[image][]";
 			String filename = getFileName(cr, imageUri);
@@ -158,8 +161,12 @@ public class ImgShr extends Activity
 			String cd       = "Content-Disposition: form-data; name=\"" + param + "\"; filename=\"" + filename + "\"" + crlf;
 			String ct       = "Content-Type: " + cr.getType(imageUri) + crlf;
 
-			// HttpsURLConnection conn = (HttpsURLConnection) (new URL(url)).openConnection();
-			HttpURLConnection conn = (HttpURLConnection) (new URL(url)).openConnection();
+			HttpURLConnection conn = null;
+			if(DEBUG) {
+				conn = (HttpURLConnection) (new URL(url)).openConnection();
+			} else {
+				conn = (HttpsURLConnection) (new URL(url)).openConnection();
+			}
 
 			try {
 				conn.setDoOutput(true);
