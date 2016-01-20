@@ -95,6 +95,10 @@ public class ImgShr extends Activity
 					runOnUiThread(new Runnable() {
 						public void run() {
 							text.setText(message);
+
+							if(message.equals("200 OK")) {
+								finish();
+							}
 						}
 					});
 				}
