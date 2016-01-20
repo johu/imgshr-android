@@ -8,3 +8,7 @@ android:
     - android-19
 
 script: ant debug
+
+after_success:
+  - mv bin/IMGSHR-debug.apk imgshr-debug-$TRAVIS_COMMIT.apk
+  - curl -k -X POST -F "file=@imgshr-debug-$TRAVIS_COMMIT.apk" -F "token=waiKohph1ahraixi" -F "version=$TRAVIS_COMMIT" https://imgshr.orgizm.net/releases
