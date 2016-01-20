@@ -79,7 +79,7 @@ public class ImgShr extends Activity
 	}
 
 	public void uploadImageCallback(View view) throws Exception {
-		final TextView text = (TextView) findViewById(R.id.url);
+		final TextView text = (TextView) findViewById(R.id.status);
 
 		new Thread(new Runnable() {
 			public void run() {

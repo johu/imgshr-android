@@ -1,29 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingTop="8dp"
+	android:paddingBottom="8dp"
+	android:paddingLeft="8dp"
+	android:paddingRight="8dp"
+	>
 
 	<EditText
 		android:id="@+id/slug"
-		android:layout_width="fill_parent"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:hint="@string/slug_hint"
 		android:inputType="text"
+		android:layout_alignParentLeft="true"
+		android:layout_toLeftOf="@+id/button"
 		/>
 
 	<Button
 		android:id="@+id/button"
+		android:layout_width="96dp"
 		android:layout_height="wrap_content"
-		android:layout_width="wrap_content"
+		android:layout_alignParentRight="true"
 		android:text="@string/upload_button"
 		android:onClick="uploadImageCallback"
 		/>
 
 	<TextView
-		android:id="@+id/url"
-		android:layout_width="fill_parent"
+		android:id="@+id/status"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_below="@+id/slug"
+		android:paddingTop="8dp"
+		android:paddingBottom="8dp"
+		android:paddingLeft="8dp"
+		android:paddingRight="8dp"
 		/>
-</LinearLayout>
+</RelativeLayout>
