@@ -11,20 +11,28 @@
 	<EditText
 		android:id="@+id/slug"
 		android:layout_width="0dp"
-		android:layout_height="wrap_content"
+		android:layout_height="50dp"
 		android:hint="@string/slug_hint"
 		android:inputType="text"
 		android:layout_alignParentLeft="true"
 		android:layout_toLeftOf="@+id/button"
+		android:paddingTop="2dp"
+		android:paddingBottom="2dp"
+		android:paddingLeft="8dp"
+		android:paddingRight="8dp"
 		/>
 
 	<Button
 		android:id="@+id/button"
-		android:layout_width="96dp"
-		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:layout_height="50dp"
 		android:layout_alignParentRight="true"
 		android:text="@string/upload_button"
 		android:onClick="uploadImageCallback"
+		android:paddingTop="2dp"
+		android:paddingBottom="2dp"
+		android:paddingLeft="12dp"
+		android:paddingRight="12dp"
 		/>
 
 	<TextView
@@ -34,7 +42,7 @@
 		android:layout_below="@+id/slug"
 		android:paddingTop="8dp"
 		android:paddingBottom="8dp"
-		android:paddingLeft="8dp"
-		android:paddingRight="8dp"
+		android:paddingLeft="12dp"
+		android:paddingRight="12dp"
 		/>
 </RelativeLayout>
