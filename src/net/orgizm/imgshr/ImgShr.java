@@ -10,9 +10,11 @@ import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -22,13 +24,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import javax.net.ssl.SSLHandshakeException;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -50,7 +52,26 @@ public class ImgShr extends Activity
 		intent = getIntent();
 
 		EditText input = (EditText) findViewById(R.id.slug);
+		Button button  = (Button)   findViewById(R.id.button);
+		TextView text  = (TextView) findViewById(R.id.status);
+
 		input.setText(getLastSlug(), TextView.BufferType.EDITABLE);
+
+		Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+		if (imageUri == null) {
+			input.setEnabled(false);
+			button.setEnabled(false);
+			text.setText("Start app via share function!");
+
+			Runnable r = new Runnable() {
+				public void run(){
+					finish();
+				}
+			};
+
+			Handler h = new Handler();
+			h.postDelayed(r, 3000);
+		}
 	}
 
 	private String getFileName(ContentResolver cr, Uri uri) {
