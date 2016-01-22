@@ -7,6 +7,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -19,20 +20,24 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import java.net.URL;
-import java.security.cert.X509Certificate;
-import javax.net.ssl.HostnameVerifier;
 import java.net.HttpURLConnection;
+import java.net.URL;
+import javax.net.ssl.SSLHandshakeException;
+import java.security.KeyStore;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 public class ImgShr extends Activity
 {
 	Boolean DEBUG = false;
+	Boolean PINNING = true;
 	Intent intent;
 
 	/** Called when the activity is first created. */
@@ -102,8 +107,17 @@ public class ImgShr extends Activity
 						}
 					});
 				}
+				catch (SSLHandshakeException e) {
+					Log.d("net.orgizm.imgshr", Log.getStackTraceString(e));
+
+					runOnUiThread(new Runnable() {
+						public void run() {
+							text.setText("Certificate invalid!");
+						}
+					});
+				}
 				catch (Exception e) {
-					Log.d("net.orgizm.imgshr", e.getMessage());
+					Log.d("net.orgizm.imgshr", Log.getStackTraceString(e));
 				}
 			}
 		}).start();
@@ -127,35 +141,50 @@ public class ImgShr extends Activity
 			InputStream file = cr.openInputStream(imageUri);
 
 			if(!DEBUG) {
-				// Create a trust manager that does not validate certificate chains
-				TrustManager[] trustAllCerts = new TrustManager[] {
-					new X509TrustManager() {
-						public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-							return null;
-						}
+				if(PINNING) {
+					AssetManager assetManager = getAssets();
+					InputStream keyStoreInputStream = assetManager.open("net.orgizm.imgshr.bks");
+					KeyStore trustStore = KeyStore.getInstance("BKS");
 
-						public void checkClientTrusted(X509Certificate[] certs, String authType) {
-						}
+					trustStore.load(keyStoreInputStream, "ahw0Iewiefei6jee".toCharArray());
 
-						public void checkServerTrusted(X509Certificate[] certs, String authType) {
+					TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
+					tmf.init(trustStore);
+
+					SSLContext sslContext = SSLContext.getInstance("TLS");
+					sslContext.init(null, tmf.getTrustManagers(), null);
+					HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+				} else {
+					// Create a trust manager that does not validate certificate chains
+					TrustManager[] trustAllCerts = new TrustManager[] {
+						new X509TrustManager() {
+							public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+								return null;
+							}
+
+							public void checkClientTrusted(X509Certificate[] certs, String authType) {
+							}
+
+							public void checkServerTrusted(X509Certificate[] certs, String authType) {
+							}
 						}
-					}
-				};
-		 
-				// Install the all-trusting trust manager
-				SSLContext sc = SSLContext.getInstance("SSL");
-				sc.init(null, trustAllCerts, new java.security.SecureRandom());
-				HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-		 
-				// Create all-trusting host name verifier
-				HostnameVerifier allHostsValid = new HostnameVerifier() {
-					public boolean verify(String hostname, SSLSession session) {
-						return true;
-					}
-				};
-		 
-				// Install the all-trusting host verifier
-				HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+					};
+			 
+					// Install the all-trusting trust manager
+					SSLContext sc = SSLContext.getInstance("SSL");
+					sc.init(null, trustAllCerts, new java.security.SecureRandom());
+					HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+			 
+					// Create all-trusting host name verifier
+					HostnameVerifier allHostsValid = new HostnameVerifier() {
+						public boolean verify(String hostname, SSLSession session) {
+							return true;
+						}
+					};
+			 
+					// Install the all-trusting host verifier
+					HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+				}
 			}
 
 			String param    = "picture[image][]";
