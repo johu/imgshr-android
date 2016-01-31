@@ -8,7 +8,7 @@
 	android:paddingRight="8dp"
 	>
 
-	<EditText
+	<net.orgizm.imgshr.InstantAutoCompleteTextView
 		android:id="@+id/slug"
 		android:layout_width="0dp"
 		android:layout_height="50dp"

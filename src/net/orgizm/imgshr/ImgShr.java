@@ -14,8 +14,8 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.BufferedInputStream;
@@ -26,6 +26,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -35,6 +37,8 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
+
+import net.orgizm.imgshr.InstantAutoCompleteTextView;
 
 public class ImgShr extends Activity
 {
@@ -51,15 +55,21 @@ public class ImgShr extends Activity
 
 		intent = getIntent();
 
-		EditText input = (EditText) findViewById(R.id.slug);
-		Button button  = (Button)   findViewById(R.id.button);
-		TextView text  = (TextView) findViewById(R.id.status);
+		InstantAutoCompleteTextView slug = (InstantAutoCompleteTextView) findViewById(R.id.slug);
+		Button button = (Button) findViewById(R.id.button);
+		TextView text = (TextView) findViewById(R.id.status);
 
-		input.setText(getLastSlug(), TextView.BufferType.EDITABLE);
+		String[] slugs = getLastSlugs();
+		String lastSlug = slugs[slugs.length - 1];
+
+		slug.setText(lastSlug, TextView.BufferType.EDITABLE);
+
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, slugs);
+		slug.setAdapter(adapter);
 
 		Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
 		if (imageUri == null) {
-			input.setEnabled(false);
+			slug.setEnabled(false);
 			button.setEnabled(false);
 			text.setText("Start app via share function!");
 
@@ -93,14 +103,25 @@ public class ImgShr extends Activity
 		return fileName;
 	}
 
-	private String getLastSlug() {
+	private String[] getLastSlugs() {
 		SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-		return pref.getString("lastSlug", "");
+		Set<String> set = pref.getStringSet("lastSlugs", null);
+
+		if(set == null) {
+			return null;
+		} else {
+			return set.toArray(new String[set.size()]);
+		}
 	}
 
-	private void setLastSlug(String slug) {
-		SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
-		editor.putString("lastSlug", slug);
+	private void setLastSlugs(String slug) {
+		SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = pref.edit();
+
+		Set<String> set = pref.getStringSet("lastSlugs", new HashSet<String>());
+		set.add(slug);
+
+		editor.putStringSet("lastSlugs", set);
 		editor.commit();
 	}
 
@@ -147,8 +168,8 @@ public class ImgShr extends Activity
 	private String uploadImage() throws Exception {
 		Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
 
-		String slug = ((EditText) findViewById(R.id.slug)).getText().toString();
-		setLastSlug(slug);
+		String slug = ((InstantAutoCompleteTextView) findViewById(R.id.slug)).getText().toString();
+		setLastSlugs(slug);
 
 		String url = "https://imgshr.orgizm.net/api/!" + slug;
 		if(DEBUG) {
