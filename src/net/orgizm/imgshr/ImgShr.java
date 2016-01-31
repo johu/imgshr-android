@@ -60,12 +60,13 @@ public class ImgShr extends Activity
 		TextView text = (TextView) findViewById(R.id.status);
 
 		String[] slugs = getLastSlugs();
-		String lastSlug = slugs[slugs.length - 1];
+		if(slugs != null) {
+			String lastSlug = slugs[slugs.length - 1];
+			slug.setText(lastSlug, TextView.BufferType.EDITABLE);
 
-		slug.setText(lastSlug, TextView.BufferType.EDITABLE);
-
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, slugs);
-		slug.setAdapter(adapter);
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, slugs);
+			slug.setAdapter(adapter);
+		}
 
 		Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
 		if (imageUri == null) {
