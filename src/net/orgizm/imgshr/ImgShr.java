@@ -63,15 +63,6 @@ public class ImgShr extends Activity
 		Button button = (Button) findViewById(R.id.button);
 		TextView text = (TextView) findViewById(R.id.status);
 
-		String[] slugs = getLastSlugs();
-		if(slugs != null) {
-			String lastSlug = slugs[slugs.length - 1];
-			slug.setText(lastSlug, TextView.BufferType.EDITABLE);
-
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, slugs);
-			slug.setAdapter(adapter);
-		}
-
 		if (Intent.ACTION_MAIN.equals(action)) {
 			slug.setEnabled(false);
 			button.setEnabled(false);
@@ -85,6 +76,15 @@ public class ImgShr extends Activity
 
 			Handler h = new Handler();
 			h.postDelayed(r, 3000);
+		} else {
+			String[] slugs = getLastSlugs();
+			if(slugs != null) {
+				String lastSlug = slugs[slugs.length - 1];
+				slug.setText(lastSlug, TextView.BufferType.EDITABLE);
+
+				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, slugs);
+				slug.setAdapter(adapter);
+			}
 		}
 	}
 
@@ -177,6 +177,53 @@ public class ImgShr extends Activity
 		}).start();
 	}
 
+	private void initializePinning() throws Exception {
+		AssetManager assetManager = getAssets();
+		InputStream keyStoreInputStream = assetManager.open("net.orgizm.imgshr.bks");
+		KeyStore trustStore = KeyStore.getInstance("BKS");
+
+		trustStore.load(keyStoreInputStream, "ahw0Iewiefei6jee".toCharArray());
+
+		TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
+		tmf.init(trustStore);
+
+		SSLContext sslContext = SSLContext.getInstance("TLS");
+		sslContext.init(null, tmf.getTrustManagers(), null);
+		HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+	}
+
+	private void initializeTrustAllCerts() throws Exception {
+		// Create a trust manager that does not validate certificate chains
+		TrustManager[] trustAllCerts = new TrustManager[] {
+			new X509TrustManager() {
+				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+					return null;
+				}
+
+				public void checkClientTrusted(X509Certificate[] certs, String authType) {
+				}
+
+				public void checkServerTrusted(X509Certificate[] certs, String authType) {
+				}
+			}
+		};
+ 
+		// Install the all-trusting trust manager
+		SSLContext sc = SSLContext.getInstance("SSL");
+		sc.init(null, trustAllCerts, new java.security.SecureRandom());
+		HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+ 
+		// Create all-trusting host name verifier
+		HostnameVerifier allHostsValid = new HostnameVerifier() {
+			public boolean verify(String hostname, SSLSession session) {
+				return true;
+			}
+		};
+ 
+		// Install the all-trusting host verifier
+		HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+	}
+
 	private String uploadImages() throws Exception {
 		ArrayList<Uri> imageUris = null;
 
@@ -201,53 +248,6 @@ public class ImgShr extends Activity
 		String message = null;
 
 		if (imageUris != null) {
-			if(!DEBUG) {
-				if(PINNING) {
-					AssetManager assetManager = getAssets();
-					InputStream keyStoreInputStream = assetManager.open("net.orgizm.imgshr.bks");
-					KeyStore trustStore = KeyStore.getInstance("BKS");
-
-					trustStore.load(keyStoreInputStream, "ahw0Iewiefei6jee".toCharArray());
-
-					TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
-					tmf.init(trustStore);
-
-					SSLContext sslContext = SSLContext.getInstance("TLS");
-					sslContext.init(null, tmf.getTrustManagers(), null);
-					HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-				} else {
-					// Create a trust manager that does not validate certificate chains
-					TrustManager[] trustAllCerts = new TrustManager[] {
-						new X509TrustManager() {
-							public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-								return null;
-							}
-
-							public void checkClientTrusted(X509Certificate[] certs, String authType) {
-							}
-
-							public void checkServerTrusted(X509Certificate[] certs, String authType) {
-							}
-						}
-					};
-			 
-					// Install the all-trusting trust manager
-					SSLContext sc = SSLContext.getInstance("SSL");
-					sc.init(null, trustAllCerts, new java.security.SecureRandom());
-					HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-			 
-					// Create all-trusting host name verifier
-					HostnameVerifier allHostsValid = new HostnameVerifier() {
-						public boolean verify(String hostname, SSLSession session) {
-							return true;
-						}
-					};
-			 
-					// Install the all-trusting host verifier
-					HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-				}
-			}
-
 			String param    = "picture[image][]";
 			String filename = "";
 			String boundary = "*****";
@@ -259,6 +259,12 @@ public class ImgShr extends Activity
 			if(DEBUG) {
 				conn = (HttpURLConnection) (new URL(url)).openConnection();
 			} else {
+				if(PINNING) {
+					initializePinning();
+				} else {
+					initializeTrustAllCerts();
+				}
+
 				conn = (HttpsURLConnection) (new URL(url)).openConnection();
 			}
 
