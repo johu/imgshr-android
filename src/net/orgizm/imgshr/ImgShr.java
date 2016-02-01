@@ -26,6 +26,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,7 +45,9 @@ public class ImgShr extends Activity
 {
 	Boolean DEBUG = false;
 	Boolean PINNING = true;
+
 	Intent intent;
+	String action;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -54,6 +57,7 @@ public class ImgShr extends Activity
 		setContentView(R.layout.main);
 
 		intent = getIntent();
+		action = intent.getAction();
 
 		InstantAutoCompleteTextView slug = (InstantAutoCompleteTextView) findViewById(R.id.slug);
 		Button button = (Button) findViewById(R.id.button);
@@ -68,8 +72,7 @@ public class ImgShr extends Activity
 			slug.setAdapter(adapter);
 		}
 
-		Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-		if (imageUri == null) {
+		if (Intent.ACTION_MAIN.equals(action)) {
 			slug.setEnabled(false);
 			button.setEnabled(false);
 			text.setText("Start app via share function!");
@@ -146,7 +149,7 @@ public class ImgShr extends Activity
 				});
 
 				try {
-					final String message = uploadImage();
+					final String message = uploadImages();
 
 					runOnUiThread(new Runnable() {
 						public void run() {
@@ -174,8 +177,18 @@ public class ImgShr extends Activity
 		}).start();
 	}
 
-	private String uploadImage() throws Exception {
-		Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+	private String uploadImages() throws Exception {
+		ArrayList<Uri> imageUris = null;
+
+		if (Intent.ACTION_SEND.equals(action)) {
+			Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+			if (imageUri != null) {
+				imageUris = new ArrayList<Uri>();
+				imageUris.add(imageUri);
+			}
+		} else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
+			imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+		}
 
 		String slug = ((InstantAutoCompleteTextView) findViewById(R.id.slug)).getText().toString();
 		setLastSlugs(slug);
@@ -187,10 +200,7 @@ public class ImgShr extends Activity
 
 		String message = null;
 
-		if (imageUri != null) {
-			ContentResolver cr = getContentResolver();
-			InputStream file = cr.openInputStream(imageUri);
-
+		if (imageUris != null) {
 			if(!DEBUG) {
 				if(PINNING) {
 					AssetManager assetManager = getAssets();
@@ -239,11 +249,11 @@ public class ImgShr extends Activity
 			}
 
 			String param    = "picture[image][]";
-			String filename = getFileName(cr, imageUri);
+			String filename = "";
 			String boundary = "*****";
 			String crlf     = "\r\n";
-			String cd       = "Content-Disposition: form-data; name=\"" + param + "\"; filename=\"" + filename + "\"" + crlf;
-			String ct       = "Content-Type: " + cr.getType(imageUri) + crlf;
+			String cd       = "";
+			String ct       = "";
 
 			HttpURLConnection conn = null;
 			if(DEBUG) {
@@ -262,20 +272,29 @@ public class ImgShr extends Activity
 
 				OutputStream out = new BufferedOutputStream(conn.getOutputStream());
 
-				out.write(("--" + boundary + crlf).getBytes());
-				out.write(cd.getBytes());
-				out.write(ct.getBytes());
-				out.write(crlf.getBytes());
+				for (Uri imageUri: imageUris) {
+					ContentResolver cr = getContentResolver();
+					InputStream file = cr.openInputStream(imageUri);
 
-				byte[] buffer = new byte[256];
-				int bytesRead = 0;
-				while ((bytesRead = file.read(buffer)) != -1) {
-					out.write(buffer, 0, bytesRead);
+					filename = getFileName(cr, imageUri);
+					cd = "Content-Disposition: form-data; name=\"" + param + "\"; filename=\"" + filename + "\"" + crlf;
+					ct = "Content-Type: " + cr.getType(imageUri) + crlf;
+
+					out.write(("--" + boundary + crlf).getBytes());
+					out.write(cd.getBytes());
+					out.write(ct.getBytes());
+					out.write(crlf.getBytes());
+
+					byte[] buffer = new byte[256];
+					int bytesRead = 0;
+					while ((bytesRead = file.read(buffer)) != -1) {
+						out.write(buffer, 0, bytesRead);
+					}
+
+					out.write(crlf.getBytes());
 				}
 
-				out.write(crlf.getBytes());
 				out.write(("--" + boundary + "--" + crlf).getBytes());
-
 				out.flush();
 
 				int responseCode = 0;
