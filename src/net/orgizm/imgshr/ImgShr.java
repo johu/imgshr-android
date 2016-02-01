@@ -121,13 +121,17 @@ public class ImgShr extends Activity
 
 		Set<String> set = pref.getStringSet("lastSlugs", null);
 
-		if(set != null) {
-			Set<String> setNew = new HashSet<String>(set);
-			setNew.add(slug);
-
-			editor.putStringSet("lastSlugs", setNew);
-			editor.commit();
+		Set<String> setNew;
+		if(set == null) {
+			setNew = new HashSet<String>();
+		} else {
+			setNew = new HashSet<String>(set);
 		}
+
+		setNew.add(slug);
+
+		editor.putStringSet("lastSlugs", setNew);
+		editor.commit();
 	}
 
 	public void uploadImageCallback(View view) throws Exception {
