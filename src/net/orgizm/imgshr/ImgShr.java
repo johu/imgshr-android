@@ -119,11 +119,15 @@ public class ImgShr extends Activity
 		SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = pref.edit();
 
-		Set<String> set = pref.getStringSet("lastSlugs", new HashSet<String>());
-		set.add(slug);
+		Set<String> set = pref.getStringSet("lastSlugs", null);
 
-		editor.putStringSet("lastSlugs", set);
-		editor.commit();
+		if(set != null) {
+			Set<String> setNew = new HashSet<String>(set);
+			setNew.add(slug);
+
+			editor.putStringSet("lastSlugs", setNew);
+			editor.commit();
+		}
 	}
 
 	public void uploadImageCallback(View view) throws Exception {
