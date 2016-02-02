@@ -3,49 +3,29 @@ package net.orgizm.imgshr;
 import android.app.Activity;
 import android.os.Bundle;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.AssetManager;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.security.KeyStore;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 
 import net.orgizm.imgshr.InstantAutoCompleteTextView;
+import net.orgizm.imgshr.Connection;
 
 public class ImgShr extends Activity
 {
-	Boolean DEBUG = false;
-	Boolean PINNING = true;
-
+	Context context;
 	Intent intent;
 	String action;
 
@@ -56,6 +36,7 @@ public class ImgShr extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
+		context = getApplicationContext();
 		intent = getIntent();
 		action = intent.getAction();
 
@@ -86,25 +67,6 @@ public class ImgShr extends Activity
 				slug.setAdapter(adapter);
 			}
 		}
-	}
-
-	private String getFileName(ContentResolver cr, Uri uri) {
-		String[] projection = {MediaStore.MediaColumns.DISPLAY_NAME};
-		Cursor metaCursor = cr.query(uri, projection, null, null, null);
-		String fileName = null;
-
-		if (metaCursor != null) {
-			try {
-				if (metaCursor.moveToFirst()) {
-					fileName = metaCursor.getString(0);
-				}
- 			}
-			finally {
-				metaCursor.close();
-			}
-		}
-
-		return fileName;
 	}
 
 	private String[] getLastSlugs() {
@@ -177,55 +139,9 @@ public class ImgShr extends Activity
 		}).start();
 	}
 
-	private void initializePinning() throws Exception {
-		AssetManager assetManager = getAssets();
-		InputStream keyStoreInputStream = assetManager.open("net.orgizm.imgshr.bks");
-		KeyStore trustStore = KeyStore.getInstance("BKS");
-
-		trustStore.load(keyStoreInputStream, "ahw0Iewiefei6jee".toCharArray());
-
-		TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
-		tmf.init(trustStore);
-
-		SSLContext sslContext = SSLContext.getInstance("TLS");
-		sslContext.init(null, tmf.getTrustManagers(), null);
-		HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-	}
-
-	private void initializeTrustAllCerts() throws Exception {
-		// Create a trust manager that does not validate certificate chains
-		TrustManager[] trustAllCerts = new TrustManager[] {
-			new X509TrustManager() {
-				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-					return null;
-				}
-
-				public void checkClientTrusted(X509Certificate[] certs, String authType) {
-				}
-
-				public void checkServerTrusted(X509Certificate[] certs, String authType) {
-				}
-			}
-		};
- 
-		// Install the all-trusting trust manager
-		SSLContext sc = SSLContext.getInstance("SSL");
-		sc.init(null, trustAllCerts, new java.security.SecureRandom());
-		HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
- 
-		// Create all-trusting host name verifier
-		HostnameVerifier allHostsValid = new HostnameVerifier() {
-			public boolean verify(String hostname, SSLSession session) {
-				return true;
-			}
-		};
- 
-		// Install the all-trusting host verifier
-		HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-	}
-
 	private String uploadImages() throws Exception {
 		ArrayList<Uri> imageUris = null;
+		String message = null;
 
 		if (Intent.ACTION_SEND.equals(action)) {
 			Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
@@ -240,76 +156,11 @@ public class ImgShr extends Activity
 		String slug = ((InstantAutoCompleteTextView) findViewById(R.id.slug)).getText().toString();
 		setLastSlugs(slug);
 
-		String url = "https://imgshr.orgizm.net/api/!" + slug;
-		if(DEBUG) {
-			url = "http://10.0.2.2:3000/api/!" + slug;
-		}
-
-		String message = null;
-
 		if (imageUris != null) {
-			String param    = "picture[image][]";
-			String filename = "";
-			String boundary = "*****";
-			String crlf     = "\r\n";
-			String cd       = "";
-			String ct       = "";
-
-			HttpURLConnection conn = null;
-			if(DEBUG) {
-				conn = (HttpURLConnection) (new URL(url)).openConnection();
-			} else {
-				if(PINNING) {
-					initializePinning();
-				} else {
-					initializeTrustAllCerts();
-				}
-
-				conn = (HttpsURLConnection) (new URL(url)).openConnection();
-			}
+			Connection conn = new Connection(context, slug);
 
 			try {
-				conn.setDoOutput(true);
-				conn.setChunkedStreamingMode(0);
-
-				conn.setRequestMethod("POST");
-				conn.setRequestProperty("Connection", "Keep-Alive");
-				conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-
-				OutputStream out = new BufferedOutputStream(conn.getOutputStream());
-
-				for (Uri imageUri: imageUris) {
-					ContentResolver cr = getContentResolver();
-					InputStream file = cr.openInputStream(imageUri);
-
-					filename = getFileName(cr, imageUri);
-					cd = "Content-Disposition: form-data; name=\"" + param + "\"; filename=\"" + filename + "\"" + crlf;
-					ct = "Content-Type: " + cr.getType(imageUri) + crlf;
-
-					out.write(("--" + boundary + crlf).getBytes());
-					out.write(cd.getBytes());
-					out.write(ct.getBytes());
-					out.write(crlf.getBytes());
-
-					byte[] buffer = new byte[256];
-					int bytesRead = 0;
-					while ((bytesRead = file.read(buffer)) != -1) {
-						out.write(buffer, 0, bytesRead);
-					}
-
-					out.write(crlf.getBytes());
-				}
-
-				out.write(("--" + boundary + "--" + crlf).getBytes());
-				out.flush();
-
-				int responseCode = 0;
-				responseCode = conn.getResponseCode();
-				String responseMessage = conn.getResponseMessage();
-
-				Log.i("net.orgizm.imgshr", "HTTP Response: " + responseCode + " " + responseMessage);
-
-				message = responseCode + " " + responseMessage;
+				message = conn.uploadImages(imageUris);
 			}
 			finally {
 				conn.disconnect();
