@@ -44,20 +44,7 @@ public class ShareActivity extends Activity
 		Button button = (Button) findViewById(R.id.button);
 		TextView text = (TextView) findViewById(R.id.status);
 
-		if (Intent.ACTION_MAIN.equals(action)) {
-			slug.setEnabled(false);
-			button.setEnabled(false);
-			text.setText("Start app via share function!");
-
-			Runnable r = new Runnable() {
-				public void run(){
-					finish();
-				}
-			};
-
-			Handler h = new Handler();
-			h.postDelayed(r, 3000);
-		} else {
+		if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
 			String[] slugs = getLastSlugs();
 			if(slugs != null) {
 				String lastSlug = slugs[slugs.length - 1];
