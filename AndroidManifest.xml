@@ -8,7 +8,7 @@
 				 android:icon="@drawable/ic_launcher"
 				 android:theme="@android:style/Theme.Holo.Light.Dialog"
 				 >
-        <activity android:name="ImgShr" android:label="@string/app_name">
+        <activity android:name="ShareActivity" android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

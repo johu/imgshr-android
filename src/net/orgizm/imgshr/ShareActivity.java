@@ -23,7 +23,7 @@ import javax.net.ssl.SSLHandshakeException;
 import net.orgizm.imgshr.InstantAutoCompleteTextView;
 import net.orgizm.imgshr.Connection;
 
-public class ImgShr extends Activity
+public class ShareActivity extends Activity
 {
 	Context context;
 	Intent intent;
