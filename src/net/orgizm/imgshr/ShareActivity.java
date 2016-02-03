@@ -29,6 +29,10 @@ public class ShareActivity extends Activity
 	Intent intent;
 	String action;
 
+	InstantAutoCompleteTextView slug;
+	Button button;
+	TextView status;
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -40,9 +44,9 @@ public class ShareActivity extends Activity
 		intent = getIntent();
 		action = intent.getAction();
 
-		InstantAutoCompleteTextView slug = (InstantAutoCompleteTextView) findViewById(R.id.slug);
-		Button button = (Button) findViewById(R.id.button);
-		TextView text = (TextView) findViewById(R.id.status);
+		slug   = (InstantAutoCompleteTextView) findViewById(R.id.slug);
+		button = (Button) findViewById(R.id.button);
+		status = (TextView) findViewById(R.id.status);
 
 		if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
 			String[] slugs = getLastSlugs();
@@ -87,13 +91,13 @@ public class ShareActivity extends Activity
 	}
 
 	public void uploadImageCallback(View view) throws Exception {
-		final TextView text = (TextView) findViewById(R.id.status);
-
 		new Thread(new Runnable() {
 			public void run() {
 				runOnUiThread(new Runnable() {
 					public void run() {
-						text.setText("Uploading...");
+						slug.setEnabled(false);
+						button.setEnabled(false);
+						status.setText("Uploading...");
 					}
 				});
 
@@ -102,10 +106,20 @@ public class ShareActivity extends Activity
 
 					runOnUiThread(new Runnable() {
 						public void run() {
-							text.setText(message);
+							status.setText(message);
 
 							if(message.equals("200 OK")) {
-								finish();
+								Runnable r = new Runnable() {
+									public void run(){
+										finish();
+									}
+								};
+
+								Handler h = new Handler();
+								h.postDelayed(r, 2000);
+							} else {
+								slug.setEnabled(false);
+								button.setEnabled(false);
 							}
 						}
 					});
@@ -115,7 +129,7 @@ public class ShareActivity extends Activity
 
 					runOnUiThread(new Runnable() {
 						public void run() {
-							text.setText("Certificate invalid!");
+							status.setText("Certificate invalid!");
 						}
 					});
 				}
