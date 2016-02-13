@@ -1,12 +1,12 @@
 package net.orgizm.imgshr;
 
 import android.app.Activity;
-import android.os.Bundle;
-
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -14,14 +14,18 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.net.ssl.SSLHandshakeException;
 
-import net.orgizm.imgshr.InstantAutoCompleteTextView;
 import net.orgizm.imgshr.Connection;
+import net.orgizm.imgshr.InstantAutoCompleteTextView;
+import net.orgizm.imgshr.ProgressNotificationUpdate;
 
 public class ShareActivity extends Activity
 {
@@ -32,6 +36,11 @@ public class ShareActivity extends Activity
 	InstantAutoCompleteTextView slug;
 	Button button;
 	TextView status;
+
+	NotificationManager nManager;
+	NotificationCompat.Builder nBuilder;
+
+	final int NOTIFICATION_ID = 0;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -47,6 +56,9 @@ public class ShareActivity extends Activity
 		slug   = (InstantAutoCompleteTextView) findViewById(R.id.slug);
 		button = (Button) findViewById(R.id.button);
 		status = (TextView) findViewById(R.id.status);
+
+		nManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		nBuilder = new NotificationCompat.Builder(context);
 
 		if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
 			String[] slugs = getLastSlugs();
@@ -102,7 +114,18 @@ public class ShareActivity extends Activity
 				});
 
 				try {
-					final String message = uploadImages();
+					runOnUiThread(new Runnable() {
+						public void run() {
+							nBuilder.setSmallIcon(R.drawable.ic_launcher)
+								.setContentTitle("Uploading pictures")
+								.setContentText("0%");
+
+							nBuilder.setProgress(100, 0, false);
+							nManager.notify(NOTIFICATION_ID, nBuilder.build());
+						}
+					});
+
+					final String message = uploadImages(ProgressNotificationUpdate);
 
 					runOnUiThread(new Runnable() {
 						public void run() {
@@ -110,7 +133,7 @@ public class ShareActivity extends Activity
 
 							if(message.equals("200 OK")) {
 								Runnable r = new Runnable() {
-									public void run(){
+									public void run() {
 										finish();
 									}
 								};
@@ -121,6 +144,9 @@ public class ShareActivity extends Activity
 								slug.setEnabled(false);
 								button.setEnabled(false);
 							}
+
+							nBuilder.setContentText("Complete").setProgress(100, 100, false);
+							// nManager.notify(NOTIFICATION_ID, nBuilder.build());
 						}
 					});
 				}
@@ -140,7 +166,7 @@ public class ShareActivity extends Activity
 		}).start();
 	}
 
-	private String uploadImages() throws Exception {
+	private String uploadImages(Class progressCallback) throws Exception {
 		ArrayList<Uri> imageUris = null;
 		String message = null;
 
@@ -158,7 +184,7 @@ public class ShareActivity extends Activity
 		setLastSlugs(slug);
 
 		if (imageUris != null) {
-			Connection conn = new Connection(context, slug);
+			Connection conn = new Connection(context, slug, progressCallback);
 
 			try {
 				message = conn.uploadImages(imageUris);

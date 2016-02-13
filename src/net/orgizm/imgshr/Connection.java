@@ -39,15 +39,21 @@ public class Connection
 	HttpURLConnection conn;
 	OutputStream out;
 
+	Class progressCallback;
+
 	final String PARAM    = "picture[image][]";
 	final String BOUNDARY = "*****";
 	final String CRLF     = "\r\n";
 
 	public Connection(Context context, String slug) throws Exception {
-		this(context, slug, null);
+		this(context, slug, null, null);
 	}
 
-	public Connection(Context context, String slug, String endpoint) throws Exception {
+	public Connection(Context context, String slug, Class progressCallback) throws Exception {
+		this(context, slug, progressCallback, null);
+	}
+
+	public Connection(Context context, String slug, Class progressCallback, String endpoint) throws Exception {
 		URL url;
 
 		Boolean https   = false;
@@ -63,6 +69,7 @@ public class Connection
 		}
 
 		this.context = context;
+		this.progressCallback = progressCallback;
 
 		url = new URL(endpoint + "/!" + slug);
 
@@ -99,6 +106,10 @@ public class Connection
 		int bytesRead = 0;
 		while ((bytesRead = file.read(buffer)) != -1) {
 			out.write(buffer, 0, bytesRead);
+
+			if (progressCallback != null) {
+				(new Thread(new progressCallback())).start();
+			}
 		}
 
 		out.write(CRLF.getBytes());
