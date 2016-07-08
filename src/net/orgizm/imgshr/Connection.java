@@ -54,7 +54,7 @@ public class Connection
 		Boolean pinning = false;
 
 		if (endpoint == null) {
-			endpoint = "https://imgshr.orgizm.net/api";
+			endpoint = "https://imgshr.space/api";
 			pinning = true;
 		}
 
