@@ -142,7 +142,10 @@ public class ShareActivity extends Activity
 								button.setEnabled(false);
 							}
 
-							nBuilder.setContentText("Complete").setProgress(0, 0, false);
+							nBuilder.setContentText("Complete")
+								.setProgress(0, 0, false)
+								.setOngoing(false);
+
 							nManager.notify(0, nBuilder.build());
 						}
 					});
