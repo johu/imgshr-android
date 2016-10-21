@@ -125,7 +125,7 @@ public class ShareActivity extends Activity
 						}
 					});
 
-					final String message = uploadImages(ProgressNotificationUpdate);
+					final String message = uploadImages(ProgressNotificationUpdate.class);
 
 					runOnUiThread(new Runnable() {
 						public void run() {

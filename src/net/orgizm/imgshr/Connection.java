@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -39,7 +40,7 @@ public class Connection
 	HttpURLConnection conn;
 	OutputStream out;
 
-	Class progressCallback;
+	Class<Runnable> progressCallback;
 
 	final String PARAM    = "picture[image][]";
 	final String BOUNDARY = "*****";
@@ -49,11 +50,11 @@ public class Connection
 		this(context, slug, null, null);
 	}
 
-	public Connection(Context context, String slug, Class progressCallback) throws Exception {
+	public Connection(Context context, String slug, Class<Runnable> progressCallback) throws Exception {
 		this(context, slug, progressCallback, null);
 	}
 
-	public Connection(Context context, String slug, Class progressCallback, String endpoint) throws Exception {
+	public Connection(Context context, String slug, Class<Runnable> progressCallback, String endpoint) throws Exception {
 		URL url;
 
 		Boolean https   = false;
@@ -89,7 +90,7 @@ public class Connection
 		conn.disconnect();
 	}
 
-	public void uploadImage(Uri imageUri) throws FileNotFoundException, IOException {
+	public void uploadImage(Uri imageUri) throws FileNotFoundException, IOException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 		ContentResolver cr = context.getContentResolver();
 		InputStream file = cr.openInputStream(imageUri);
 
@@ -107,15 +108,21 @@ public class Connection
 		while ((bytesRead = file.read(buffer)) != -1) {
 			out.write(buffer, 0, bytesRead);
 
-			if (progressCallback != null) {
-				(new Thread(new progressCallback())).start();
+			if (this.progressCallback != null) {
+				Class[] types = new Class[] { Context.class, int.class };
+				ProgressNotificationUpdate pnu =
+					(ProgressNotificationUpdate) this.progressCallback
+					.getDeclaredConstructor(types)
+					.newInstance(this.context, 50);
+				Thread t = new Thread(pnu);
+				t.start();
 			}
 		}
 
 		out.write(CRLF.getBytes());
 	}
 
-	public String uploadImages(ArrayList<Uri> imageUris) throws FileNotFoundException, IOException {
+	public String uploadImages(ArrayList<Uri> imageUris) throws FileNotFoundException, IOException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 		for (Uri imageUri: imageUris) {
 			uploadImage(imageUri);
 		}
