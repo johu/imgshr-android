@@ -107,12 +107,16 @@ public class Connection
 		int bytesRead = 0;
 		int size = file.available();
 		int written = 0;
+		int percent = 0;
 
 		while ((bytesRead = file.read(buffer)) != -1) {
 			out.write(buffer, 0, bytesRead);
-			written += bytesRead;
 
-			nBuilder.setProgress(size, written, false);
+			written += bytesRead;
+			percent = written * 100 / size;
+
+			nBuilder.setProgress(size, written, false)
+				.setContentText("" + percent + "%");
 			nManager.notify(0, nBuilder.build());
 		}
 
