@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
-
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 
@@ -25,7 +24,6 @@ import javax.net.ssl.SSLHandshakeException;
 
 import net.orgizm.imgshr.Connection;
 import net.orgizm.imgshr.InstantAutoCompleteTextView;
-import net.orgizm.imgshr.ProgressNotificationUpdate;
 
 public class ShareActivity extends Activity
 {
@@ -39,8 +37,6 @@ public class ShareActivity extends Activity
 
 	NotificationManager nManager;
 	NotificationCompat.Builder nBuilder;
-
-	final int NOTIFICATION_ID = 0;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -118,14 +114,15 @@ public class ShareActivity extends Activity
 						public void run() {
 							nBuilder.setSmallIcon(R.drawable.ic_launcher)
 								.setContentTitle("Uploading pictures")
-								.setContentText("0%");
+								.setProgress(100, 0, false)
+								.setContentText("0%")
+								.setOngoing(true);
 
-							nBuilder.setProgress(100, 0, false);
-							nManager.notify(NOTIFICATION_ID, nBuilder.build());
+							nManager.notify(0, nBuilder.build());
 						}
 					});
 
-					final String message = uploadImages(ProgressNotificationUpdate.class);
+					final String message = uploadImages();
 
 					runOnUiThread(new Runnable() {
 						public void run() {
@@ -145,8 +142,8 @@ public class ShareActivity extends Activity
 								button.setEnabled(false);
 							}
 
-							nBuilder.setContentText("Complete").setProgress(100, 100, false);
-							// nManager.notify(NOTIFICATION_ID, nBuilder.build());
+							nBuilder.setContentText("Complete").setProgress(0, 0, false);
+							nManager.notify(0, nBuilder.build());
 						}
 					});
 				}
@@ -166,7 +163,7 @@ public class ShareActivity extends Activity
 		}).start();
 	}
 
-	private String uploadImages(Class progressCallback) throws Exception {
+	private String uploadImages() throws Exception {
 		ArrayList<Uri> imageUris = null;
 		String message = null;
 
@@ -184,7 +181,7 @@ public class ShareActivity extends Activity
 		setLastSlugs(slug);
 
 		if (imageUris != null) {
-			Connection conn = new Connection(context, slug, progressCallback);
+			Connection conn = new Connection(context, slug, nManager, nBuilder);
 
 			try {
 				message = conn.uploadImages(imageUris);

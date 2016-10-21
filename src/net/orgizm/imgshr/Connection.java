@@ -1,5 +1,6 @@
 package net.orgizm.imgshr;
 
+import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -7,6 +8,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
 
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
@@ -39,22 +42,18 @@ public class Connection
 	Context context;
 	HttpURLConnection conn;
 	OutputStream out;
-
-	Class<Runnable> progressCallback;
+	NotificationManager nManager;
+	NotificationCompat.Builder nBuilder;
 
 	final String PARAM    = "picture[image][]";
 	final String BOUNDARY = "*****";
 	final String CRLF     = "\r\n";
 
-	public Connection(Context context, String slug) throws Exception {
-		this(context, slug, null, null);
+	public Connection(Context context, String slug, NotificationManager nManager, NotificationCompat.Builder nBuilder) throws Exception {
+		this(context, slug, null, nManager, nBuilder);
 	}
 
-	public Connection(Context context, String slug, Class<Runnable> progressCallback) throws Exception {
-		this(context, slug, progressCallback, null);
-	}
-
-	public Connection(Context context, String slug, Class<Runnable> progressCallback, String endpoint) throws Exception {
+	public Connection(Context context, String slug, String endpoint, NotificationManager nManager, NotificationCompat.Builder nBuilder) throws Exception {
 		URL url;
 
 		Boolean https   = false;
@@ -70,7 +69,8 @@ public class Connection
 		}
 
 		this.context = context;
-		this.progressCallback = progressCallback;
+		this.nManager = nManager;
+		this.nBuilder = nBuilder;
 
 		url = new URL(endpoint + "/!" + slug);
 
@@ -90,7 +90,7 @@ public class Connection
 		conn.disconnect();
 	}
 
-	public void uploadImage(Uri imageUri) throws FileNotFoundException, IOException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+	public void uploadImage(Uri imageUri) throws FileNotFoundException, IOException, InstantiationException, IllegalAccessException {
 		ContentResolver cr = context.getContentResolver();
 		InputStream file = cr.openInputStream(imageUri);
 
@@ -105,24 +105,21 @@ public class Connection
 
 		byte[] buffer = new byte[256];
 		int bytesRead = 0;
+		int size = file.available();
+		int written = 0;
+
 		while ((bytesRead = file.read(buffer)) != -1) {
 			out.write(buffer, 0, bytesRead);
+			written += bytesRead;
 
-			if (this.progressCallback != null) {
-				Class[] types = new Class[] { Context.class, int.class };
-				ProgressNotificationUpdate pnu =
-					(ProgressNotificationUpdate) this.progressCallback
-					.getDeclaredConstructor(types)
-					.newInstance(this.context, 50);
-				Thread t = new Thread(pnu);
-				t.start();
-			}
+			nBuilder.setProgress(size, written, false);
+			nManager.notify(0, nBuilder.build());
 		}
 
 		out.write(CRLF.getBytes());
 	}
 
-	public String uploadImages(ArrayList<Uri> imageUris) throws FileNotFoundException, IOException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+	public String uploadImages(ArrayList<Uri> imageUris) throws FileNotFoundException, IOException, InstantiationException, IllegalAccessException  {
 		for (Uri imageUri: imageUris) {
 			uploadImage(imageUri);
 		}
