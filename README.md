@@ -6,5 +6,5 @@ Android app for uploading images to IMGSHR via share action.
 
 ## Links
 
-* [IMGSHR](https://imgshr.orgizm.net)
-* [CI APK releases](https://imgshr.orgizm.net/releases)
+* [IMGSHR](https://imgshr.space)
+* [CI APK releases](https://imgshr.space/releases)
