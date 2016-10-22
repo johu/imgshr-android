@@ -103,11 +103,12 @@ public class Connection
 		out.write(ct.getBytes());
 		out.write(CRLF.getBytes());
 
-		byte[] buffer = new byte[2048];
+		byte[] buffer = new byte[256];
 		int bytesRead = 0;
 		int size = file.available();
 		int written = 0;
 		int percent = 0;
+		int lastPercent = 0;
 
 		while ((bytesRead = file.read(buffer)) != -1) {
 			out.write(buffer, 0, bytesRead);
@@ -115,9 +116,12 @@ public class Connection
 			written += bytesRead;
 			percent = written * 100 / size;
 
-			nBuilder.setProgress(size, written, false)
-				.setContentText("" + percent + "%");
-			nManager.notify(0, nBuilder.build());
+			if (percent != lastPercent) {
+				nBuilder.setProgress(size, written, false)
+					.setContentText("" + percent + "%");
+				nManager.notify(0, nBuilder.build());
+				lastPercent = percent;
+			}
 		}
 
 		out.write(CRLF.getBytes());
