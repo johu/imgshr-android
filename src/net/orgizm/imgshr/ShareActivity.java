@@ -106,22 +106,24 @@ public class ShareActivity extends Activity
 						slug.setEnabled(false);
 						button.setEnabled(false);
 						status.setText("Uploading...");
-
-						nBuilder.setSmallIcon(R.drawable.ic_launcher)
-							.setContentTitle("Uploading pictures")
-							.setProgress(100, 0, false)
-							.setContentText("0%")
-							.setOngoing(true);
-
-						nManager.notify(0, nBuilder.build());
 					}
 				});
+
+				final String slug = ((InstantAutoCompleteTextView) findViewById(R.id.slug)).getText().toString();
+
+				nBuilder.setSmallIcon(R.drawable.ic_launcher)
+					.setContentTitle("Uploading (" + slug + ")")
+					.setProgress(100, 0, false)
+					.setContentText("0%")
+					.setOngoing(true);
+
+				nManager.notify(0, nBuilder.build());
 
 				new Thread() {
 					@Override
 					public void run() {
 						try {
-							final String message = uploadImages();
+							final String message = uploadImages(slug);
 
 							nBuilder.setContentText(message)
 								.setProgress(0, 0, false)
@@ -149,7 +151,7 @@ public class ShareActivity extends Activity
 		}).start();
 	}
 
-	private String uploadImages() throws Exception {
+	private String uploadImages(String slug) throws Exception {
 		ArrayList<Uri> imageUris = null;
 		String message = null;
 
@@ -163,7 +165,6 @@ public class ShareActivity extends Activity
 			imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
 		}
 
-		String slug = ((InstantAutoCompleteTextView) findViewById(R.id.slug)).getText().toString();
 		setLastSlugs(slug);
 
 		if (imageUris != null) {
