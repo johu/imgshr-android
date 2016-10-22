@@ -103,7 +103,7 @@ public class Connection
 		out.write(ct.getBytes());
 		out.write(CRLF.getBytes());
 
-		byte[] buffer = new byte[256];
+		byte[] buffer = new byte[2048];
 		int bytesRead = 0;
 		int size = file.available();
 		int written = 0;
