@@ -58,7 +58,7 @@ public class ShareActivity extends Activity
 
 		if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
 			String[] slugs = getLastSlugs();
-			if(slugs != null) {
+			if (slugs != null) {
 				String lastSlug = slugs[slugs.length - 1];
 				slug.setText(lastSlug, TextView.BufferType.EDITABLE);
 
@@ -72,7 +72,7 @@ public class ShareActivity extends Activity
 		SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
 		Set<String> set = pref.getStringSet("lastSlugs", null);
 
-		if(set == null) {
+		if (set == null) {
 			return null;
 		} else {
 			return set.toArray(new String[set.size()]);
@@ -86,7 +86,7 @@ public class ShareActivity extends Activity
 		Set<String> set = pref.getStringSet("lastSlugs", null);
 
 		Set<String> setNew;
-		if(set == null) {
+		if (set == null) {
 			setNew = new HashSet<String>();
 		} else {
 			setNew = new HashSet<String>(set);
@@ -106,62 +106,45 @@ public class ShareActivity extends Activity
 						slug.setEnabled(false);
 						button.setEnabled(false);
 						status.setText("Uploading...");
+
+						nBuilder.setSmallIcon(R.drawable.ic_launcher)
+							.setContentTitle("Uploading pictures")
+							.setProgress(100, 0, false)
+							.setContentText("0%")
+							.setOngoing(true);
+
+						nManager.notify(0, nBuilder.build());
 					}
 				});
 
-				try {
-					runOnUiThread(new Runnable() {
-						public void run() {
-							nBuilder.setSmallIcon(R.drawable.ic_launcher)
-								.setContentTitle("Uploading pictures")
-								.setProgress(100, 0, false)
-								.setContentText("0%")
-								.setOngoing(true);
+				new Thread() {
+					@Override
+					public void run() {
+						try {
+							final String message = uploadImages();
 
-							nManager.notify(0, nBuilder.build());
-						}
-					});
-
-					final String message = uploadImages();
-
-					runOnUiThread(new Runnable() {
-						public void run() {
-							status.setText(message);
-
-							if(message.equals("200 OK")) {
-								Runnable r = new Runnable() {
-									public void run() {
-										finish();
-									}
-								};
-
-								Handler h = new Handler();
-								h.postDelayed(r, 2000);
-							} else {
-								slug.setEnabled(false);
-								button.setEnabled(false);
-							}
-
-							nBuilder.setContentText("Complete")
+							nBuilder.setContentText(message)
 								.setProgress(0, 0, false)
 								.setOngoing(false);
 
 							nManager.notify(0, nBuilder.build());
 						}
-					});
-				}
-				catch (SSLHandshakeException e) {
-					Log.d("net.orgizm.imgshr", Log.getStackTraceString(e));
+						catch (SSLHandshakeException e) {
+							Log.d("net.orgizm.imgshr", Log.getStackTraceString(e));
 
-					runOnUiThread(new Runnable() {
-						public void run() {
-							status.setText("Certificate invalid!");
+							nBuilder.setContentText("Certificate invalid!")
+								.setProgress(0, 0, false)
+								.setOngoing(false);
+
+							nManager.notify(0, nBuilder.build());
 						}
-					});
-				}
-				catch (Exception e) {
-					Log.d("net.orgizm.imgshr", Log.getStackTraceString(e));
-				}
+						catch (Exception e) {
+							Log.d("net.orgizm.imgshr", Log.getStackTraceString(e));
+						}
+					}
+				}.start();
+
+				moveTaskToBack(true);
 			}
 		}).start();
 	}

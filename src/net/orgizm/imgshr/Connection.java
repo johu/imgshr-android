@@ -90,7 +90,7 @@ public class Connection
 		conn.disconnect();
 	}
 
-	public void uploadImage(Uri imageUri) throws FileNotFoundException, IOException, InstantiationException, IllegalAccessException {
+	public void uploadImage(Uri imageUri, int i, int n) throws FileNotFoundException, IOException, InstantiationException, IllegalAccessException {
 		ContentResolver cr = context.getContentResolver();
 		InputStream file = cr.openInputStream(imageUri);
 
@@ -110,6 +110,12 @@ public class Connection
 		int percent = 0;
 		int lastPercent = 0;
 
+		String overall = "";
+		if (n > 1) {
+			i++;
+			overall = " (" + i + " of " + n + ")";
+		}
+
 		while ((bytesRead = file.read(buffer)) != -1) {
 			out.write(buffer, 0, bytesRead);
 
@@ -118,7 +124,7 @@ public class Connection
 
 			if (percent != lastPercent) {
 				nBuilder.setProgress(size, written, false)
-					.setContentText("" + percent + "%");
+					.setContentText("" + percent + "%" + overall);
 				nManager.notify(0, nBuilder.build());
 				lastPercent = percent;
 			}
@@ -128,8 +134,9 @@ public class Connection
 	}
 
 	public String uploadImages(ArrayList<Uri> imageUris) throws FileNotFoundException, IOException, InstantiationException, IllegalAccessException  {
-		for (Uri imageUri: imageUris) {
-			uploadImage(imageUri);
+		int n = imageUris.size();
+		for(int i = 0; i < n; i++) {
+			uploadImage(imageUris.get(i), i, n);
 		}
 
 		out.write(("--" + BOUNDARY + "--" + CRLF).getBytes());
