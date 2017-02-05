@@ -13,11 +13,14 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.Set;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -64,6 +67,29 @@ public class ShareActivity extends Activity
 
 				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, slugs);
 				slug.setAdapter(adapter);
+			}
+		}
+
+		if (Intent.ACTION_VIEW.equals(action)) {
+            Uri uri = intent.getData();
+			String path = uri.getPath();
+
+			Matcher m = Pattern.compile("^/!([a-zA-Z0-9]*)").matcher(path);
+			String newSlug = null;
+
+			if (m.find()) {
+				newSlug = m.group(1);
+			}
+
+			if (newSlug != null) {
+				setLastSlugs(newSlug);
+
+				CharSequence text = "Saved slug!";
+
+				Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+				toast.show();
+
+				finish();
 			}
 		}
 	}
