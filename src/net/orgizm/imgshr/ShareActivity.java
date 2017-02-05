@@ -130,6 +130,8 @@ public class ShareActivity extends Activity
 								.setOngoing(false);
 
 							nManager.notify(0, nBuilder.build());
+
+							finish();
 						}
 						catch (SSLHandshakeException e) {
 							Log.d("net.orgizm.imgshr", Log.getStackTraceString(e));
