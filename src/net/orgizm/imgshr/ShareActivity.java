@@ -19,6 +19,7 @@ import android.support.v4.app.NotificationCompat.Builder;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Set;
@@ -40,6 +41,7 @@ public class ShareActivity extends Activity
 
 	NotificationManager nManager;
 	NotificationCompat.Builder nBuilder;
+	Random rand = new Random();
 
 	/** Called when the activity is first created. */
 	@Override
@@ -136,6 +138,7 @@ public class ShareActivity extends Activity
 				});
 
 				final String slug = ((InstantAutoCompleteTextView) findViewById(R.id.slug)).getText().toString();
+				final int nId = rand.nextInt(2^16);
 
 				nBuilder.setSmallIcon(R.drawable.ic_launcher)
 					.setContentTitle("Uploading (" + slug + ")")
@@ -143,19 +146,19 @@ public class ShareActivity extends Activity
 					.setContentText("0%")
 					.setOngoing(true);
 
-				nManager.notify(0, nBuilder.build());
+				nManager.notify(nId, nBuilder.build());
 
 				new Thread() {
 					@Override
 					public void run() {
 						try {
-							final String message = uploadImages(slug);
+							final String message = uploadImages(slug, nId);
 
 							nBuilder.setContentText(message)
 								.setProgress(0, 0, false)
 								.setOngoing(false);
 
-							nManager.notify(0, nBuilder.build());
+							nManager.notify(nId, nBuilder.build());
 
 							finish();
 						}
@@ -166,7 +169,7 @@ public class ShareActivity extends Activity
 								.setProgress(0, 0, false)
 								.setOngoing(false);
 
-							nManager.notify(0, nBuilder.build());
+							nManager.notify(nId, nBuilder.build());
 						}
 						catch (Exception e) {
 							Log.d("net.orgizm.imgshr", Log.getStackTraceString(e));
@@ -179,7 +182,7 @@ public class ShareActivity extends Activity
 		}).start();
 	}
 
-	private String uploadImages(String slug) throws Exception {
+	private String uploadImages(String slug, int nId) throws Exception {
 		ArrayList<Uri> imageUris = null;
 		String message = null;
 
@@ -196,7 +199,7 @@ public class ShareActivity extends Activity
 		setLastSlugs(slug);
 
 		if (imageUris != null) {
-			Connection conn = new Connection(context, slug, nManager, nBuilder);
+			Connection conn = new Connection(context, slug, nManager, nBuilder, nId);
 
 			try {
 				message = conn.uploadImages(imageUris);

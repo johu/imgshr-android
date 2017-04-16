@@ -49,11 +49,17 @@ public class Connection
 	final String BOUNDARY = "*****";
 	final String CRLF     = "\r\n";
 
+	int nId = 0;
+
 	public Connection(Context context, String slug, NotificationManager nManager, NotificationCompat.Builder nBuilder) throws Exception {
-		this(context, slug, null, nManager, nBuilder);
+		this(context, slug, null, nManager, nBuilder, 0);
 	}
 
-	public Connection(Context context, String slug, String endpoint, NotificationManager nManager, NotificationCompat.Builder nBuilder) throws Exception {
+	public Connection(Context context, String slug, NotificationManager nManager, NotificationCompat.Builder nBuilder, int nId) throws Exception {
+		this(context, slug, null, nManager, nBuilder, nId);
+	}
+
+	public Connection(Context context, String slug, String endpoint, NotificationManager nManager, NotificationCompat.Builder nBuilder, int nId) throws Exception {
 		URL url;
 
 		Boolean https   = false;
@@ -71,6 +77,7 @@ public class Connection
 		this.context = context;
 		this.nManager = nManager;
 		this.nBuilder = nBuilder;
+		this.nId = nId;
 
 		url = new URL(endpoint + "/!" + slug);
 
@@ -125,7 +132,7 @@ public class Connection
 			if (percent != lastPercent) {
 				nBuilder.setProgress(size, written, false)
 					.setContentText("" + percent + "%" + overall);
-				nManager.notify(0, nBuilder.build());
+				nManager.notify(nId, nBuilder.build());
 				lastPercent = percent;
 			}
 		}
