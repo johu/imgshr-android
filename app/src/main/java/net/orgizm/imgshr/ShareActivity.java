@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -15,7 +14,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompat.Builder;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -25,9 +23,6 @@ import java.util.regex.Matcher;
 import java.util.Set;
 
 import javax.net.ssl.SSLHandshakeException;
-
-import net.orgizm.imgshr.Connection;
-import net.orgizm.imgshr.InstantAutoCompleteTextView;
 
 public class ShareActivity extends Activity
 {
@@ -48,7 +43,7 @@ public class ShareActivity extends Activity
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
+		setContentView(R.layout.share_activity);
 
 		context = getApplicationContext();
 		intent = getIntent();
@@ -140,7 +135,7 @@ public class ShareActivity extends Activity
 				final String slug = ((InstantAutoCompleteTextView) findViewById(R.id.slug)).getText().toString();
 				final int nId = rand.nextInt(2^16);
 
-				nBuilder.setSmallIcon(R.drawable.ic_launcher)
+				nBuilder.setSmallIcon(R.mipmap.ic_launcher)
 					.setContentTitle("Uploading (" + slug + ")")
 					.setProgress(100, 0, false)
 					.setContentText("0%")

@@ -7,8 +7,8 @@ android:
     - build-tools
     - android-19
 
-script: ant debug
+script: gradle build
 
 after_success:
-  - mv bin/IMGSHR-debug.apk imgshr-debug-${TRAVIS_COMMIT:0:7}.apk
+  - mv app/builds/outputs/apk/app-debug.apk imgshr-debug-${TRAVIS_COMMIT:0:7}.apk
   - curl -k -X POST -F "file=@imgshr-debug-${TRAVIS_COMMIT:0:7}.apk" -F "token=$RELEASE_TOKEN" -F "version=${TRAVIS_COMMIT:0:7}" -F "branch=$TRAVIS_BRANCH" https://imgshr.space/releases
