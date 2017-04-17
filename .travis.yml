@@ -1,14 +1,16 @@
 language: android
+jdk: oraclejdk8
 
 android:
   components:
     - tools
     - platform-tools
-    - build-tools
-    - android-19
+    - build-tools-25.0.2
+    - android-25
+    - extra-android-m2repository
 
-script: gradle build
+script: ./gradlew build
 
 after_success:
-  - mv app/builds/outputs/apk/app-debug.apk imgshr-debug-${TRAVIS_COMMIT:0:7}.apk
+  - mv app/build/outputs/apk/app-debug.apk imgshr-debug-${TRAVIS_COMMIT:0:7}.apk
   - curl -k -X POST -F "file=@imgshr-debug-${TRAVIS_COMMIT:0:7}.apk" -F "token=$RELEASE_TOKEN" -F "version=${TRAVIS_COMMIT:0:7}" -F "branch=$TRAVIS_BRANCH" https://imgshr.space/releases
