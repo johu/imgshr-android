@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="myTheme.ActionBar.Text" parent="@style/TextAppearance.AppCompat.Display2">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="myTheme.ActionBar.TitleText" parent="@style/TextAppearance.AppCompat.Headline">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+</resources>

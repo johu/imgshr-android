@@ -11,16 +11,22 @@
         android:layout_width="match_parent">
 
         <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/toolbar_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:toolbarId="@+id/toolbar"
+            android:background="?attr/colorAccent"
+            app:expandedTitleTextAppearance="@style/myTheme.ActionBar.Text"
+            app:collapsedTitleTextAppearance="@style/myTheme.ActionBar.TitleText"
+            app:contentScrim="?attr/colorAccent"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:contentScrim="?attr/colorPrimary">
+            app:toolbarId="@+id/toolbar">
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
-                android:layout_height="?attr/actionBarSize"
-                android:layout_width="match_parent"></android.support.v7.widget.Toolbar>
+                android:titleTextColor="@android:color/white"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize">
+            </android.support.v7.widget.Toolbar>
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
@@ -50,5 +56,5 @@
         android:src="@android:drawable/ic_menu_add"
         android:layout_marginRight="16dp"
         android:clickable="true"
-        app:fabSize="mini" />
+        app:fabSize="normal" />
 </android.support.design.widget.CoordinatorLayout>
