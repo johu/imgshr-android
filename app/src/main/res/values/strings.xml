@@ -3,4 +3,5 @@
     <string name="app_name">IMGSHR</string>
     <string name="slug_hint">Slug</string>
     <string name="upload_button">Upload</string>
+    <string name="title_activity_gallery_manager">Galleries</string>
 </resources>

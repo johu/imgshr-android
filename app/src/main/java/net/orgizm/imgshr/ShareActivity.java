@@ -43,7 +43,7 @@ public class ShareActivity extends Activity
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.share_activity);
+		setContentView(R.layout.activity_share_activity);
 
 		context = getApplicationContext();
 		intent = getIntent();
