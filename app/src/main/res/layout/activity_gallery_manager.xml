@@ -14,16 +14,15 @@
             android:id="@+id/toolbar_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="?attr/colorAccent"
+            android:background="@color/turquois"
             app:expandedTitleTextAppearance="@style/myTheme.ActionBar.Text"
             app:collapsedTitleTextAppearance="@style/myTheme.ActionBar.TitleText"
-            app:contentScrim="?attr/colorAccent"
+            app:contentScrim="@color/turquois"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:toolbarId="@+id/toolbar">
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
-                android:titleTextColor="@android:color/white"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize">
             </android.support.v7.widget.Toolbar>
@@ -53,8 +52,9 @@
         android:layout_width="wrap_content"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|right|end"
-        android:src="@android:drawable/ic_menu_add"
+        android:src="@drawable/ic_add_white_24dp"
         android:layout_marginRight="16dp"
         android:clickable="true"
+        app:backgroundTint="@android:color/holo_orange_dark"
         app:fabSize="normal" />
 </android.support.design.widget.CoordinatorLayout>
