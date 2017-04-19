@@ -40,6 +40,6 @@ public class Preferences {
         setNew.add(slug);
 
         editor.putStringSet(LAST_SLUGS_KEY, setNew);
-        editor.commit();
+        editor.apply();
     }
 }

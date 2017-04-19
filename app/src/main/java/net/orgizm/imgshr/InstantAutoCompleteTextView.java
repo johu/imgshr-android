@@ -20,10 +20,12 @@ package net.orgizm.imgshr;
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.AutoCompleteTextView;
 
+@SuppressLint("AppCompatCustomView")
 public class InstantAutoCompleteTextView extends AutoCompleteTextView {
 	public InstantAutoCompleteTextView(Context context, AttributeSet attrs) {
 		super(context, attrs);

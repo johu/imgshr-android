@@ -16,7 +16,7 @@ import android.support.v4.app.NotificationCompat;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.regex.Pattern;
+	import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -92,38 +92,6 @@ public class ShareActivity extends Activity
 		}
 	}
 
-	/*
-	private String[] getLastSlugs() {
-		SharedPreferences pref = getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
-		Set<String> set = pref.getStringSet(LAST_SLUGS_KEY, null);
-
-		if (set == null) {
-			return null;
-		} else {
-			return set.toArray(new String[set.size()]);
-		}
-	}
-
-	private void setLastSlugs(String slug) {
-		SharedPreferences pref = getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = pref.edit();
-
-		Set<String> set = pref.getStringSet(LAST_SLUGS_KEY, null);
-
-		Set<String> setNew;
-		if (set == null) {
-			setNew = new HashSet<String>();
-		} else {
-			setNew = new HashSet<String>(set);
-		}
-
-		setNew.add(slug);
-
-		editor.putStringSet(LAST_SLUGS_KEY, setNew);
-		editor.commit();
-	}
-	*/
-
 	public void uploadImageCallback(View view) throws Exception {
 		new Thread(new Runnable() {
 			public void run() {
@@ -131,7 +99,7 @@ public class ShareActivity extends Activity
 					public void run() {
 						slug.setEnabled(false);
 						button.setEnabled(false);
-						status.setText(getString(R.string.uploading) + "...");
+						status.setText(getString(R.string.uploading, "..."));
 					}
 				});
 
@@ -139,7 +107,7 @@ public class ShareActivity extends Activity
 				final int nId = rand.nextInt(2^16);
 
 				nBuilder.setSmallIcon(R.mipmap.ic_launcher)
-					.setContentTitle(getString(R.string.uploading) + " (" + slug + ")")
+					.setContentTitle(getString(R.string.uploading, " (" + slug + ")"))
 					.setProgress(100, 0, false)
 					.setContentText("0%")
 					.setOngoing(true);

@@ -1,5 +1,6 @@
 package net.orgizm.imgshr;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -199,6 +200,7 @@ public class Connection
 		HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
 	}
 
+	@SuppressLint({"TrulyRandom", "BadHostnameVerifier", "TrustAllX509TrustManager"})
 	private void initializeTrustAllCerts() throws KeyManagementException, NoSuchAlgorithmException {
 		// Create a trust manager that does not validate certificate chains
 		TrustManager[] trustAllCerts = new TrustManager[] {

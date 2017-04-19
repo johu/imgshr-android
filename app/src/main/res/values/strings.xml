@@ -4,7 +4,7 @@
     <string name="slug_hint">Slug</string>
     <string name="upload_button">Upload</string>
     <string name="title_activity_gallery_manager">Galleries</string>
-    <string name="uploading">Uploading</string>
+    <string name="uploading">Uploading%1$s</string>
     <string name="certificate_invalid">Certificate invalid!</string>
     <string name="saved_slug">Saved slug!</string>
 </resources>
