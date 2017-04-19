@@ -1,5 +1,7 @@
 package net.orgizm.imgshr;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Activity;
 import android.support.annotation.IntegerRes;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class GalleryManager extends Activity {
     private List<Gallery> galleriesList = new ArrayList<>();
@@ -31,6 +34,12 @@ public class GalleryManager extends Activity {
         registerAddButtonHandler();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        populateListView();
+    }
+
     protected void setTitle() {
         CollapsingToolbarLayout layout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
         layout.setTitle(getString(R.string.app_name));
@@ -44,10 +53,16 @@ public class GalleryManager extends Activity {
         list.setItemAnimator(new DefaultItemAnimator());
         list.setAdapter(adapter);
 
-        galleriesList.add(new Gallery("foo"));
-        galleriesList.add(new Gallery("bar"));
+        SharedPreferences pref = getSharedPreferences("imgshr", Context.MODE_PRIVATE);
+        Set<String> set = pref.getStringSet("lastSlugs", null);
 
-        Toast.makeText(getApplicationContext(), Integer.toString(galleriesList.size()), Toast.LENGTH_LONG).show();
+        galleriesList.clear();
+
+        if (set != null) {
+            for (String slug : set) {
+                galleriesList.add(new Gallery(slug));
+            }
+        }
 
         adapter.notifyDataSetChanged();
     }
@@ -60,7 +75,7 @@ public class GalleryManager extends Activity {
             public void onClick(View v) {
                 galleriesList.add(new Gallery("bar"));
                 adapter.notifyItemChanged(galleriesList.size() - 1);
-                Toast.makeText(getApplicationContext(), "Whee!", Toast.LENGTH_LONG).show();
+                // Toast.makeText(getApplicationContext(), "Whee!", Toast.LENGTH_LONG).show();
             }
         });
     }

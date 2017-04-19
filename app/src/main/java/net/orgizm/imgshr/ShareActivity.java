@@ -92,7 +92,7 @@ public class ShareActivity extends Activity
 	}
 
 	private String[] getLastSlugs() {
-		SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+		SharedPreferences pref = getSharedPreferences("imgshr", Context.MODE_PRIVATE);
 		Set<String> set = pref.getStringSet("lastSlugs", null);
 
 		if (set == null) {
@@ -103,7 +103,7 @@ public class ShareActivity extends Activity
 	}
 
 	private void setLastSlugs(String slug) {
-		SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+		SharedPreferences pref = getSharedPreferences("imgshr", Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = pref.edit();
 
 		Set<String> set = pref.getStringSet("lastSlugs", null);
