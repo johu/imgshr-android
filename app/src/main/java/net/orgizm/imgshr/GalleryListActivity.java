@@ -12,7 +12,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GalleryManager extends Activity {
+public class GalleryListActivity extends Activity {
     private List<Gallery> galleriesList = new ArrayList<>();
     private GalleryListAdapter adapter = new GalleryListAdapter(galleriesList);
 
