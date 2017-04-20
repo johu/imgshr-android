@@ -43,6 +43,11 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".GalleryAddActivity"
+            android:label="@string/add_gallery"
+            android:theme="@android:style/Theme.Holo.Light.Dialog">
+        </activity>
     </application>
 
 </manifest>

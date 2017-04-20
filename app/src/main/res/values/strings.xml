@@ -5,8 +5,10 @@
     <string name="upload_button">Upload</string>
     <string name="uploading">Uploading%1$s</string>
     <string name="certificate_invalid">Certificate invalid!</string>
-    <string name="saved_slug">Saved slug!</string>
+    <string name="gallery_saved">Saved gallery!</string>
     <string name="delete_from_list">Delete from list</string>
     <string name="gallery_deleted">Gallery deleted!</string>
     <string name="open_url">Open URL</string>
+    <string name="save_button">Save</string>
+    <string name="add_gallery">Add gallery</string>
 </resources>

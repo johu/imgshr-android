@@ -8,16 +8,16 @@
 	android:paddingRight="8dp"
 	>
 
-	<net.orgizm.imgshr.InstantAutoCompleteTextView
+	<EditText
 		android:id="@+id/slug"
 		android:layout_width="0dp"
 		android:layout_height="50dp"
 		android:hint="@string/slug_hint"
 		android:inputType="text"
-		android:layout_alignParentLeft="true"
 		android:layout_alignParentStart="true"
-		android:layout_toLeftOf="@+id/button"
+		android:layout_alignParentLeft="true"
 		android:layout_toStartOf="@+id/button"
+		android:layout_toLeftOf="@+id/button"
 		android:paddingTop="2dp"
 		android:paddingBottom="2dp"
 		android:paddingLeft="8dp"
@@ -30,21 +30,10 @@
 		android:layout_height="50dp"
 		android:layout_alignParentRight="true"
 		android:layout_alignParentEnd="true"
-		android:text="@string/upload_button"
-		android:onClick="uploadImageCallback"
+		android:text="@string/save_button"
+		android:onClick="addGalleryCallback"
 		android:paddingTop="2dp"
 		android:paddingBottom="2dp"
-		android:paddingLeft="12dp"
-		android:paddingRight="12dp"
-		/>
-
-	<TextView
-		android:id="@+id/status"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_below="@+id/slug"
-		android:paddingTop="8dp"
-		android:paddingBottom="8dp"
 		android:paddingLeft="12dp"
 		android:paddingRight="12dp"
 		/>

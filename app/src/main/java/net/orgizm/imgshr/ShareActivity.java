@@ -39,7 +39,6 @@ public class ShareActivity extends Activity
 
 	private Preferences preferences;
 
-	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -85,10 +84,7 @@ public class ShareActivity extends Activity
 
 			if (newSlug != null) {
 				preferences.setLastSlugs(new Gallery(newSlug));
-
-				Toast toast = Toast.makeText(context, getString(R.string.saved_slug), Toast.LENGTH_LONG);
-				toast.show();
-
+				Toast.makeText(context, getString(R.string.gallery_saved), Toast.LENGTH_LONG).show();
 				finish();
 			}
 		}

@@ -75,10 +75,8 @@ public class GalleryListActivity extends Activity {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                galleriesList.add(new Gallery("bar"));
-                adapter.notifyItemChanged(galleriesList.size() - 1);
-
-                preferences.setLastSlugs(galleriesList);
+                Intent intent = new Intent(getApplicationContext(), GalleryAddActivity.class);
+                startActivity(intent);
             }
         });
     }
