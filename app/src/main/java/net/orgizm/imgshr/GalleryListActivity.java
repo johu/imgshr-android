@@ -7,7 +7,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +23,15 @@ public class GalleryListActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_gallery_manager);
+        setContentView(R.layout.gallery_list_activity);
 
         preferences = new Preferences(getApplicationContext());
 
         setTitle();
         populateListView();
         registerAddButtonHandler();
+
+        registerForContextMenu(findViewById(R.id.list));
     }
 
     @Override
@@ -64,15 +68,30 @@ public class GalleryListActivity extends Activity {
 
     protected void registerAddButtonHandler() {
         FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.add_button);
-
+        
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 galleriesList.add(new Gallery("bar"));
                 adapter.notifyItemChanged(galleriesList.size() - 1);
-                // Toast.makeText(getApplicationContext(), "Whee!", Toast.LENGTH_LONG).show();
+
+                preferences.setLastSlugs(galleriesList);
             }
         });
     }
 
+    public boolean onContextItemSelected(MenuItem item) {
+        final int position = adapter.getPosition();
+
+        if (item.getItemId() == R.id.delete_from_list) {
+            galleriesList.remove(position);
+            adapter.notifyDataSetChanged();
+
+            preferences.setLastSlugs(galleriesList);
+
+            Toast.makeText(getApplicationContext(), R.string.gallery_deleted, Toast.LENGTH_SHORT).show();
+        }
+
+        return super.onContextItemSelected(item);
+    }
 }

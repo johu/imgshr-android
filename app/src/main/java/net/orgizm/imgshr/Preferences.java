@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Preferences {
@@ -40,6 +41,18 @@ public class Preferences {
         setNew.add(slug);
 
         editor.putStringSet(LAST_SLUGS_KEY, setNew);
+        editor.apply();
+    }
+
+    public void setLastSlugs(List<Gallery> list) {
+        SharedPreferences.Editor editor = preferences.edit();
+        Set<String> set = new HashSet<String>();
+
+        for (Gallery gallery : list) {
+            set.add(gallery.getSlug());
+        }
+
+        editor.putStringSet(LAST_SLUGS_KEY, set);
         editor.apply();
     }
 }

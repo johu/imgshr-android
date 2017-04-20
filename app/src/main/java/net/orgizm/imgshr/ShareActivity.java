@@ -16,7 +16,7 @@ import android.support.v4.app.NotificationCompat;
 
 import java.util.ArrayList;
 import java.util.Random;
-	import java.util.regex.Pattern;
+import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -44,7 +44,7 @@ public class ShareActivity extends Activity
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_share_activity);
+		setContentView(R.layout.share_activity);
 
 		context = getApplicationContext();
 		intent = getIntent();
