@@ -14,7 +14,7 @@ public class GalleryListAdapter extends RecyclerView.Adapter<GalleryListAdapter.
     private List<Gallery> galleriesList;
     private int position;
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener, View.OnClickListener {
         public TextView slug;
 
         public ViewHolder(View view) {
@@ -23,6 +23,7 @@ public class GalleryListAdapter extends RecyclerView.Adapter<GalleryListAdapter.
             slug = (TextView) view.findViewById(R.id.slug);
 
             view.setOnCreateContextMenuListener(this);
+            view.setOnClickListener(this);
         }
 
         @Override
@@ -30,6 +31,12 @@ public class GalleryListAdapter extends RecyclerView.Adapter<GalleryListAdapter.
             Gallery gallery = galleriesList.get(this.getAdapterPosition());
             menu.setHeaderTitle(gallery.getSlug());
             menu.add(Menu.NONE, R.id.delete_from_list, Menu.NONE, R.string.delete_from_list);
+            menu.add(Menu.NONE, R.id.open_url, Menu.NONE, R.string.open_url);
+        }
+
+        @Override
+        public void onClick(View view) {
+            // TODO
         }
     }
 

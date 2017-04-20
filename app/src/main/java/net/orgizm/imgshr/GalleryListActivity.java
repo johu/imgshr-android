@@ -1,5 +1,7 @@
 package net.orgizm.imgshr;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -84,13 +86,24 @@ public class GalleryListActivity extends Activity {
     public boolean onContextItemSelected(MenuItem item) {
         final int position = adapter.getPosition();
 
-        if (item.getItemId() == R.id.delete_from_list) {
-            galleriesList.remove(position);
-            adapter.notifyDataSetChanged();
+        switch (item.getItemId()) {
+            case R.id.delete_from_list:
+                galleriesList.remove(position);
+                adapter.notifyDataSetChanged();
 
-            preferences.setLastSlugs(galleriesList);
+                preferences.setLastSlugs(galleriesList);
 
-            Toast.makeText(getApplicationContext(), R.string.gallery_deleted, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.gallery_deleted, Toast.LENGTH_SHORT).show();
+
+                break;
+
+            case R.id.open_url:
+                Gallery gallery = galleriesList.get(position);
+                String url = "https://imgshr.space/!" + gallery.getSlug();
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                getApplicationContext().startActivity(intent);
+
+                break;
         }
 
         return super.onContextItemSelected(item);
