@@ -1,5 +1,6 @@
 package net.orgizm.imgshr;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -9,16 +10,13 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompat.Builder;
 
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -39,17 +37,17 @@ import javax.net.ssl.X509TrustManager;
 
 public class Connection
 {
-	Context context;
-	HttpURLConnection conn;
-	OutputStream out;
-	NotificationManager nManager;
-	NotificationCompat.Builder nBuilder;
+	private Context context;
+	private HttpURLConnection conn;
+	private OutputStream out;
+	private NotificationManager nManager;
+	private NotificationCompat.Builder nBuilder;
 
-	final String PARAM    = "picture[image][]";
-	final String BOUNDARY = "*****";
-	final String CRLF     = "\r\n";
+	private final String PARAM    = "picture[image][]";
+	private final String BOUNDARY = "*****";
+	private final String CRLF     = "\r\n";
 
-	int nId = 0;
+	private int nId = 0;
 
 	public Connection(Context context, String slug, NotificationManager nManager, NotificationCompat.Builder nBuilder) throws Exception {
 		this(context, slug, null, nManager, nBuilder, 0);
@@ -97,7 +95,7 @@ public class Connection
 		conn.disconnect();
 	}
 
-	public void uploadImage(Uri imageUri, int i, int n) throws FileNotFoundException, IOException, InstantiationException, IllegalAccessException {
+	private void uploadImage(Uri imageUri, int i, int n) throws FileNotFoundException, IOException, InstantiationException, IllegalAccessException {
 		ContentResolver cr = context.getContentResolver();
 		InputStream file = cr.openInputStream(imageUri);
 
@@ -199,6 +197,7 @@ public class Connection
 		HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
 	}
 
+	@SuppressLint({"TrulyRandom", "BadHostnameVerifier", "TrustAllX509TrustManager"})
 	private void initializeTrustAllCerts() throws KeyManagementException, NoSuchAlgorithmException {
 		// Create a trust manager that does not validate certificate chains
 		TrustManager[] trustAllCerts = new TrustManager[] {

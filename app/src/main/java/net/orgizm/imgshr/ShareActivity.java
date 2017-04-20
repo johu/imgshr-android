@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,29 +15,30 @@ import android.widget.Toast;
 import android.support.v4.app.NotificationCompat;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Random;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import java.util.Set;
 
 import javax.net.ssl.SSLHandshakeException;
 
 public class ShareActivity extends Activity
 {
-	Context context;
-	Intent intent;
-	String action;
+	final String LOG_TARGET = "net.orgizm.imgshr";
 
-	InstantAutoCompleteTextView slug;
-	Button button;
-	TextView status;
+	private Context context;
+	private Intent intent;
+	private String action;
 
-	NotificationManager nManager;
-	NotificationCompat.Builder nBuilder;
-	Random rand = new Random();
+	private InstantAutoCompleteTextView slug;
+	private Button button;
+	private TextView status;
 
-	/** Called when the activity is first created. */
+	private NotificationManager nManager;
+	private NotificationCompat.Builder nBuilder;
+	private Random rand = new Random();
+
+	private Preferences preferences;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -56,11 +56,15 @@ public class ShareActivity extends Activity
 		nManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		nBuilder = new NotificationCompat.Builder(context);
 
+		preferences = new Preferences(context);
+
 		if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
-			String[] slugs = getLastSlugs();
+			String[] slugs = preferences.getLastSlugsAsArray();
 			if (slugs != null) {
-				String lastSlug = slugs[slugs.length - 1];
-				slug.setText(lastSlug, TextView.BufferType.EDITABLE);
+				if (slugs.length > 0) {
+					String lastSlug = slugs[slugs.length - 1];
+					slug.setText(lastSlug, TextView.BufferType.EDITABLE);
+				}
 
 				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, slugs);
 				slug.setAdapter(adapter);
@@ -79,46 +83,11 @@ public class ShareActivity extends Activity
 			}
 
 			if (newSlug != null) {
-				setLastSlugs(newSlug);
-
-				CharSequence text = "Saved slug!";
-
-				Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-				toast.show();
-
+				preferences.setLastSlugs(new Gallery(newSlug));
+				Toast.makeText(context, getString(R.string.gallery_saved), Toast.LENGTH_LONG).show();
 				finish();
 			}
 		}
-	}
-
-	private String[] getLastSlugs() {
-		SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-		Set<String> set = pref.getStringSet("lastSlugs", null);
-
-		if (set == null) {
-			return null;
-		} else {
-			return set.toArray(new String[set.size()]);
-		}
-	}
-
-	private void setLastSlugs(String slug) {
-		SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = pref.edit();
-
-		Set<String> set = pref.getStringSet("lastSlugs", null);
-
-		Set<String> setNew;
-		if (set == null) {
-			setNew = new HashSet<String>();
-		} else {
-			setNew = new HashSet<String>(set);
-		}
-
-		setNew.add(slug);
-
-		editor.putStringSet("lastSlugs", setNew);
-		editor.commit();
 	}
 
 	public void uploadImageCallback(View view) throws Exception {
@@ -128,7 +97,7 @@ public class ShareActivity extends Activity
 					public void run() {
 						slug.setEnabled(false);
 						button.setEnabled(false);
-						status.setText("Uploading...");
+						status.setText(getString(R.string.uploading, "..."));
 					}
 				});
 
@@ -136,7 +105,7 @@ public class ShareActivity extends Activity
 				final int nId = rand.nextInt(2^16);
 
 				nBuilder.setSmallIcon(R.mipmap.ic_launcher)
-					.setContentTitle("Uploading (" + slug + ")")
+					.setContentTitle(getString(R.string.uploading, " (" + slug + ")"))
 					.setProgress(100, 0, false)
 					.setContentText("0%")
 					.setOngoing(true);
@@ -158,16 +127,16 @@ public class ShareActivity extends Activity
 							finish();
 						}
 						catch (SSLHandshakeException e) {
-							Log.d("net.orgizm.imgshr", Log.getStackTraceString(e));
+							Log.d(LOG_TARGET, Log.getStackTraceString(e));
 
-							nBuilder.setContentText("Certificate invalid!")
+							nBuilder.setContentText(getString(R.string.certificate_invalid))
 								.setProgress(0, 0, false)
 								.setOngoing(false);
 
 							nManager.notify(nId, nBuilder.build());
 						}
 						catch (Exception e) {
-							Log.d("net.orgizm.imgshr", Log.getStackTraceString(e));
+							Log.d(LOG_TARGET, Log.getStackTraceString(e));
 						}
 					}
 				}.start();
@@ -191,7 +160,7 @@ public class ShareActivity extends Activity
 			imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
 		}
 
-		setLastSlugs(slug);
+		preferences.setLastSlugs(new Gallery(slug));
 
 		if (imageUris != null) {
 			Connection conn = new Connection(context, slug, nManager, nBuilder, nId);
