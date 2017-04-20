@@ -60,10 +60,12 @@ public class ShareActivity extends Activity
 		preferences = new Preferences(context);
 
 		if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
-			String[] slugs = preferences.getLastSlugs();
+			String[] slugs = preferences.getLastSlugsAsArray();
 			if (slugs != null) {
-				String lastSlug = slugs[slugs.length - 1];
-				slug.setText(lastSlug, TextView.BufferType.EDITABLE);
+				if (slugs.length > 0) {
+					String lastSlug = slugs[slugs.length - 1];
+					slug.setText(lastSlug, TextView.BufferType.EDITABLE);
+				}
 
 				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, slugs);
 				slug.setAdapter(adapter);
@@ -82,7 +84,7 @@ public class ShareActivity extends Activity
 			}
 
 			if (newSlug != null) {
-				preferences.setLastSlugs(newSlug);
+				preferences.setLastSlugs(new Gallery(newSlug));
 
 				Toast toast = Toast.makeText(context, getString(R.string.saved_slug), Toast.LENGTH_LONG);
 				toast.show();
@@ -162,7 +164,7 @@ public class ShareActivity extends Activity
 			imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
 		}
 
-		preferences.setLastSlugs(slug);
+		preferences.setLastSlugs(new Gallery(slug));
 
 		if (imageUris != null) {
 			Connection conn = new Connection(context, slug, nManager, nBuilder, nId);

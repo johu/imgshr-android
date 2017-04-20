@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class GalleryListActivity extends Activity {
     private List<Gallery> galleriesList = new ArrayList<>();
@@ -53,7 +54,7 @@ public class GalleryListActivity extends Activity {
         list.setItemAnimator(new DefaultItemAnimator());
         list.setAdapter(adapter);
 
-        String[] lastSlugs = preferences.getLastSlugs();
+        Set<String> lastSlugs = preferences.getLastSlugs();
 
         galleriesList.clear();
 
@@ -68,7 +69,7 @@ public class GalleryListActivity extends Activity {
 
     protected void registerAddButtonHandler() {
         FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.add_button);
-        
+
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

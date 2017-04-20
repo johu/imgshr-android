@@ -3,56 +3,80 @@ package net.orgizm.imgshr;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.gson.Gson;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class Preferences {
     final String PREFERENCES_NAME = "imgshr";
-    final String LAST_SLUGS_KEY = "lastSlugs";
+    final String GALLERIES_KEY = "galleries";
 
     private SharedPreferences preferences;
+    private Gson gson = new Gson();
 
     public Preferences(Context context) {
         preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
     }
 
-    public String[] getLastSlugs() {
-        Set<String> set = preferences.getStringSet(LAST_SLUGS_KEY, null);
+    public Set<Gallery> getGalleries() {
+        Set<String> serializedGalleries = preferences.getStringSet(GALLERIES_KEY, null);
+        Set<Gallery> galleries = new HashSet<>();
 
-        if (set == null) {
+        if (serializedGalleries != null) {
+            for (String serializedGallery : serializedGalleries) {
+                Gallery gallery = gson.fromJson(serializedGallery, Gallery.class);
+                galleries.add(gallery);
+            }
+        }
+
+        return galleries;
+    }
+
+    public Set<String> getLastSlugs() {
+        Set<Gallery> galleries = getGalleries();
+        Set<String> slugs = new HashSet<>();
+
+        for (Gallery gallery : galleries) {
+            slugs.add(gallery.getSlug());
+        }
+
+        return slugs;
+    }
+
+    public String[] getLastSlugsAsArray() {
+        Set<String> slugs = getLastSlugs();
+
+        if (slugs == null) {
             return null;
         } else {
-            return set.toArray(new String[set.size()]);
+            return slugs.toArray(new String[slugs.size()]);
         }
     }
 
-    public void setLastSlugs(String slug) {
+    public void setLastSlugs(Gallery gallery) {
+        if (gallery == null) return;
+
         SharedPreferences.Editor editor = preferences.edit();
-        Set<String> set = preferences.getStringSet(LAST_SLUGS_KEY, null);
 
-        Set<String> setNew;
-        if (set == null) {
-            setNew = new HashSet<String>();
-        } else {
-            setNew = new HashSet<String>(set);
-        }
+        Set<String> serializedGalleries = preferences.getStringSet(GALLERIES_KEY, null);
+        serializedGalleries.add(gson.toJson(gallery));
 
-        setNew.add(slug);
-
-        editor.putStringSet(LAST_SLUGS_KEY, setNew);
+        editor.putStringSet(GALLERIES_KEY, serializedGalleries);
         editor.apply();
     }
 
-    public void setLastSlugs(List<Gallery> list) {
+    public void setLastSlugs(List<Gallery> galleries) {
         SharedPreferences.Editor editor = preferences.edit();
-        Set<String> set = new HashSet<String>();
+        Set<String> serializedGalleries = new HashSet<>();
 
-        for (Gallery gallery : list) {
-            set.add(gallery.getSlug());
+        for (Gallery gallery : galleries) {
+            if (gallery == null) continue;
+            serializedGalleries.add(gson.toJson(gallery));
         }
 
-        editor.putStringSet(LAST_SLUGS_KEY, set);
+        editor.putStringSet(GALLERIES_KEY, serializedGalleries);
         editor.apply();
     }
 }

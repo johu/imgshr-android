@@ -3,11 +3,9 @@
     <string name="app_name">IMGSHR</string>
     <string name="slug_hint">Slug</string>
     <string name="upload_button">Upload</string>
-    <string name="title_activity_gallery_manager">Galleries</string>
     <string name="uploading">Uploading%1$s</string>
     <string name="certificate_invalid">Certificate invalid!</string>
     <string name="saved_slug">Saved slug!</string>
     <string name="delete_from_list">Delete from list</string>
-    <string name="gallery_context_menu_title">Gallery actions</string>
     <string name="gallery_deleted">Gallery deleted!</string>
 </resources>

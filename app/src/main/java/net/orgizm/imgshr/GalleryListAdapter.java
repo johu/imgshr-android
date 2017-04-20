@@ -27,7 +27,8 @@ public class GalleryListAdapter extends RecyclerView.Adapter<GalleryListAdapter.
 
         @Override
         public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
-            menu.setHeaderTitle(R.string.gallery_context_menu_title);
+            Gallery gallery = galleriesList.get(this.getAdapterPosition());
+            menu.setHeaderTitle(gallery.getSlug());
             menu.add(Menu.NONE, R.id.delete_from_list, Menu.NONE, R.string.delete_from_list);
         }
     }
