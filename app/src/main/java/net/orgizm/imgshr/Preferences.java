@@ -63,9 +63,10 @@ public class Preferences {
         Set<String> serializedGalleries = preferences.getStringSet(GALLERIES_KEY, null);
         if (serializedGalleries == null) serializedGalleries = new HashSet<>();
 
-        serializedGalleries.add(gson.toJson(gallery));
+        Set<String> newSerializedGalleries = new HashSet<>(serializedGalleries);
+        newSerializedGalleries.add(gson.toJson(gallery));
 
-        editor.putStringSet(GALLERIES_KEY, serializedGalleries);
+        editor.putStringSet(GALLERIES_KEY, newSerializedGalleries);
         editor.apply();
     }
 
