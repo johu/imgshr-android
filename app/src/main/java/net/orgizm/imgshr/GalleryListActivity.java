@@ -1,5 +1,6 @@
 package net.orgizm.imgshr;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -99,6 +100,7 @@ public class GalleryListActivity extends Activity {
                 Gallery gallery = galleriesList.get(position);
                 String url = "https://imgshr.space/!" + gallery.getSlug();
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getApplicationContext().startActivity(intent);
 
                 break;
