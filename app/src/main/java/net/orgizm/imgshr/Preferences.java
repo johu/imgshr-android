@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -59,20 +60,36 @@ public class Preferences {
     public void setLastSlugs(Gallery gallery) {
         if (gallery == null) return;
 
-        SharedPreferences.Editor editor = preferences.edit();
+        List<Gallery> newGalleries = new ArrayList<>(getGalleries());
 
-        Set<String> serializedGalleries = preferences.getStringSet(GALLERIES_KEY, null);
-        if (serializedGalleries == null) serializedGalleries = new HashSet<>();
+        int position = -1;
+        for (int i = 0; i < newGalleries.size(); i++) {
+            if (gallery.getSlug().equals(newGalleries.get(i).getSlug())) {
+                position = i;
+                break;
+            }
+        }
 
-        Set<String> newSerializedGalleries = new HashSet<>(serializedGalleries);
-        newSerializedGalleries.add(gson.toJson(gallery));
+        if (position == -1) {
+            newGalleries.add(gallery);
+        } else {
+            newGalleries.get(position).updateDetails(gallery);
+        }
 
-        editor.putStringSet(GALLERIES_KEY, newSerializedGalleries);
-        editor.apply();
+        setLastSlugs(newGalleries);
     }
 
     public void setLastSlugs(List<Gallery> galleries) {
+        setLastSlugs(new HashSet<>(galleries));
+    }
+
+    public void setLastSlugs(Set<Gallery> galleries) {
         SharedPreferences.Editor editor = preferences.edit();
+        editor.putStringSet(GALLERIES_KEY, serializeGalleries(galleries));
+        editor.apply();
+    }
+
+    public Set<String> serializeGalleries(Set<Gallery> galleries) {
         Set<String> serializedGalleries = new HashSet<>();
 
         for (Gallery gallery : galleries) {
@@ -80,7 +97,6 @@ public class Preferences {
             serializedGalleries.add(gson.toJson(gallery));
         }
 
-        editor.putStringSet(GALLERIES_KEY, serializedGalleries);
-        editor.apply();
+        return serializedGalleries;
     }
 }

@@ -1,11 +1,8 @@
 package net.orgizm.imgshr;
 
-import android.content.Context;
-import android.util.Log;
-
 import com.google.gson.Gson;
 
-public class Gallery {
+public class Gallery implements Comparable<Gallery> {
     private String name;
     private String slug;
 
@@ -32,8 +29,20 @@ public class Gallery {
         this.slug = slug;
     }
 
-    public void updateDetailsFromJson(String json) {
-        final Gallery gallery = new Gson().fromJson(json, Gallery.class);
+    public void updateDetails(Gallery gallery) {
         this.name = gallery.getName();
+    }
+
+    public void updateDetails(String json) {
+        final Gallery gallery = new Gson().fromJson(json, Gallery.class);
+        updateDetails(gallery);
+    }
+
+    public int compareTo(Gallery other) {
+        if (this.getName() == other.getName()) {
+            return 0;
+        } else {
+            return -1;
+        }
     }
 }

@@ -10,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -19,10 +20,13 @@ import java.util.List;
 import java.util.Set;
 
 public class GalleryListActivity extends Activity {
+    final String LOG_TARGET = "net.orgizm.imgshr";
+
     private List<Gallery> galleriesList = new ArrayList<>();
     private GalleryListAdapter adapter = new GalleryListAdapter(galleriesList);
 
     private Preferences preferences;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +34,7 @@ public class GalleryListActivity extends Activity {
         setContentView(R.layout.gallery_list_activity);
 
         preferences = new Preferences(getApplicationContext());
+        context = getApplicationContext();
 
         setTitle();
         populateListView();
@@ -57,13 +62,8 @@ public class GalleryListActivity extends Activity {
         list.setItemAnimator(new DefaultItemAnimator());
         list.setAdapter(adapter);
 
-        Set<Gallery> galleries = preferences.getGalleries();
-
         galleriesList.clear();
-
-        for (Gallery gallery : galleries) {
-            galleriesList.add(gallery);
-        }
+        galleriesList.addAll(preferences.getGalleries());
 
         adapter.notifyDataSetChanged();
     }
@@ -95,11 +95,41 @@ public class GalleryListActivity extends Activity {
                 break;
 
             case R.id.open_url:
-                Gallery gallery = galleriesList.get(position);
-                String url = "https://imgshr.space/!" + gallery.getSlug();
+                Gallery gallery1 = galleriesList.get(position);
+                String url = "https://imgshr.space/!" + gallery1.getSlug();
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getApplicationContext().startActivity(intent);
+
+                break;
+
+            case R.id.update_details:
+                final Gallery gallery2 = galleriesList.get(position);
+
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            final Connection conn = new Connection(context, gallery2.getSlug());
+                            final String json = conn.discoverGallery();
+
+                            Log.d(LOG_TARGET, json);
+
+                            gallery2.updateDetails(json);
+                        }
+                        catch(Exception e) {
+                            Log.d(LOG_TARGET, Log.getStackTraceString(e));
+                        }
+
+                        preferences.setLastSlugs(gallery2);
+
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(context, R.string.gallery_saved, Toast.LENGTH_SHORT).show();
+                                adapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                }).start();
 
                 break;
         }

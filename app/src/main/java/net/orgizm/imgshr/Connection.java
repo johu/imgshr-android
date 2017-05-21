@@ -12,7 +12,6 @@ import android.util.Log;
 import android.support.v4.app.NotificationCompat;
 
 import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -252,8 +251,6 @@ public class Connection
     }
 
     public String discoverGallery() throws IOException {
-        final Gallery gallery = new Gallery(slug);
-
         setConnectionPropertiesForDiscover();
 
         int code = conn.getResponseCode();

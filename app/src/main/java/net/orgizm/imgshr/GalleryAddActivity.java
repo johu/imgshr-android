@@ -38,9 +38,7 @@ public class GalleryAddActivity extends Activity
                     final Connection conn = new Connection(context, s);
                     final String json = conn.discoverGallery();
 
-                    gallery.updateDetailsFromJson(json);
-
-                    Log.d(LOG_TARGET, json);
+                    gallery.updateDetails(json);
                 }
                 catch(Exception e) {
                     Log.d(LOG_TARGET, Log.getStackTraceString(e));
