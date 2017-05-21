@@ -57,14 +57,12 @@ public class GalleryListActivity extends Activity {
         list.setItemAnimator(new DefaultItemAnimator());
         list.setAdapter(adapter);
 
-        Set<String> lastSlugs = preferences.getLastSlugs();
+        Set<Gallery> galleries = preferences.getGalleries();
 
         galleriesList.clear();
 
-        if (lastSlugs != null) {
-            for (String slug : lastSlugs) {
-                galleriesList.add(new Gallery(slug));
-            }
+        for (Gallery gallery : galleries) {
+            galleriesList.add(gallery);
         }
 
         adapter.notifyDataSetChanged();

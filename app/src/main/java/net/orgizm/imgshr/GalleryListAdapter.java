@@ -1,6 +1,7 @@
 package net.orgizm.imgshr;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -63,7 +64,14 @@ public class GalleryListAdapter extends RecyclerView.Adapter<GalleryListAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         Gallery gallery = galleriesList.get(position);
-        holder.slug.setText(gallery.getSlug());
+
+        String slug = gallery.getSlug();
+        String name = gallery.getName();
+
+        Log.d("net.orgizm.imgshr", "------------------> " + name);
+        Log.d("net.orgizm.imgshr", "------------------> " + (name == null ? slug : name));
+
+        holder.slug.setText(name == null ? slug : name);
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override

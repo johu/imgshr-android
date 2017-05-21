@@ -15,6 +15,7 @@ import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
@@ -37,17 +38,24 @@ import javax.net.ssl.X509TrustManager;
 
 public class Connection
 {
+    private final String DEFAULT_API_URL = "https://imgshr.space/api";
+
 	private Context context;
 	private HttpURLConnection conn;
 	private OutputStream out;
 	private NotificationManager nManager;
 	private NotificationCompat.Builder nBuilder;
+    private String slug;
 
 	private final String PARAM    = "picture[image][]";
 	private final String BOUNDARY = "*****";
 	private final String CRLF     = "\r\n";
 
 	private int nId = 0;
+
+	public Connection(Context context, String slug) throws Exception {
+		this(context, slug, null, null, null, 0);
+	}
 
 	public Connection(Context context, String slug, NotificationManager nManager, NotificationCompat.Builder nBuilder) throws Exception {
 		this(context, slug, null, nManager, nBuilder, 0);
@@ -64,7 +72,7 @@ public class Connection
 		Boolean pinning = false;
 
 		if (endpoint == null) {
-			endpoint = "https://imgshr.space/api";
+			endpoint = DEFAULT_API_URL;
 			pinning = true;
 		}
 
@@ -76,6 +84,7 @@ public class Connection
 		this.nManager = nManager;
 		this.nBuilder = nBuilder;
 		this.nId = nId;
+        this.slug = slug;
 
 		url = new URL(endpoint + "/!" + slug);
 
@@ -85,17 +94,13 @@ public class Connection
 		} else {
 			conn = (HttpURLConnection) url.openConnection();
 		}
-
-		setConnectionProperties();
-
-		out = new BufferedOutputStream(conn.getOutputStream());
-	}
+    }
 
 	public void disconnect() {
 		conn.disconnect();
 	}
 
-	private void uploadImage(Uri imageUri, int i, int n) throws FileNotFoundException, IOException, InstantiationException, IllegalAccessException {
+	private void uploadImage(Uri imageUri, int i, int n) throws IOException, InstantiationException, IllegalAccessException {
 		ContentResolver cr = context.getContentResolver();
 		InputStream file = cr.openInputStream(imageUri);
 
@@ -138,8 +143,11 @@ public class Connection
 		out.write(CRLF.getBytes());
 	}
 
-	public String uploadImages(ArrayList<Uri> imageUris) throws FileNotFoundException, IOException, InstantiationException, IllegalAccessException  {
-		int n = imageUris.size();
+	public String uploadImages(ArrayList<Uri> imageUris) throws IOException, InstantiationException, IllegalAccessException  {
+        out = new BufferedOutputStream(conn.getOutputStream());
+        setConnectionPropertiesForUpload();
+
+        int n = imageUris.size();
 		for(int i = 0; i < n; i++) {
 			uploadImage(imageUris.get(i), i, n);
 		}
@@ -150,7 +158,7 @@ public class Connection
 		int code = conn.getResponseCode();
 		String message = conn.getResponseMessage();
 
-		Log.i("net.orgizm.imgshr", "HTTP Response: " + code + " " + message);
+		Log.i("net.orgizm.imgshr", "HTTP upload Response: " + code + " " + message);
 
 		return code + " " + message;
 	}
@@ -176,7 +184,7 @@ public class Connection
 
 	private void initializeEncryption(Boolean pinning) throws Exception {
 		if (pinning) {
-			initializePinning();
+		 	initializePinning();
 		} else {
 			initializeTrustAllCerts();
 		}
@@ -230,7 +238,7 @@ public class Connection
 		HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
 	}
 
-	private void setConnectionProperties() throws ProtocolException {
+	public void setConnectionPropertiesForUpload() throws ProtocolException {
 		conn.setDoOutput(true);
 		conn.setChunkedStreamingMode(0);
 
@@ -238,4 +246,40 @@ public class Connection
 		conn.setRequestProperty("Connection", "Keep-Alive");
 		conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + BOUNDARY);
 	}
+
+    public void setConnectionPropertiesForDiscover() throws ProtocolException {
+        conn.setRequestMethod("GET");
+    }
+
+    public String discoverGallery() throws IOException {
+        final Gallery gallery = new Gallery(slug);
+
+        setConnectionPropertiesForDiscover();
+
+        int code = conn.getResponseCode();
+        String message = conn.getResponseMessage();
+
+        Log.i("net.orgizm.imgshr", "HTTP discover Response: " + code + " " + message);
+
+        String json = "";
+
+        try {
+            InputStream in = conn.getInputStream();
+            InputStreamReader reader = new InputStreamReader(in);
+
+            int data = reader.read();
+            while (data != -1) {
+                json += (char) data;
+                data = reader.read();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+
+        return json;
+    }
 }
