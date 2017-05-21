@@ -9,7 +9,9 @@ android:
     - android-25
     - extra-android-m2repository
 
-script: ./gradlew build
+script:
+  - ./gradlew assembleDebug 
+  - ./gradlew lintDebug
 
 after_success:
   - mv app/build/outputs/apk/app-debug.apk imgshr-debug-${TRAVIS_COMMIT:0:7}.apk
