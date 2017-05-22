@@ -33,6 +33,7 @@ public class GalleryListAdapter extends RecyclerView.Adapter<GalleryListAdapter.
             menu.setHeaderTitle(gallery.getSlug());
             menu.add(Menu.NONE, R.id.delete_from_list, Menu.NONE, R.string.delete_from_list);
             menu.add(Menu.NONE, R.id.open_url, Menu.NONE, R.string.open_url);
+            menu.add(Menu.NONE, R.id.share_url, Menu.NONE, R.string.share_url);
             menu.add(Menu.NONE, R.id.update_details, Menu.NONE, R.string.update_details);
         }
 

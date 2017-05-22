@@ -12,4 +12,5 @@
     <string name="save_button">Save</string>
     <string name="add_gallery">Add gallery</string>
     <string name="update_details">Update details</string>
+    <string name="share_url">Share URL</string>
 </resources>

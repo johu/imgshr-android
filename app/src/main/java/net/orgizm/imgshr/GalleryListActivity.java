@@ -95,32 +95,31 @@ public class GalleryListActivity extends Activity {
                 break;
 
             case R.id.open_url:
-                Gallery gallery1 = galleriesList.get(position);
-                String url = "https://imgshr.space/!" + gallery1.getSlug();
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                getApplicationContext().startActivity(intent);
+                String url1 = "https://imgshr.space/!" + galleriesList.get(position).getSlug();
+                Intent intent1 = new Intent(Intent.ACTION_VIEW, Uri.parse(url1));
+                intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent1);
 
                 break;
 
             case R.id.update_details:
-                final Gallery gallery2 = galleriesList.get(position);
+                final Gallery gallery1 = galleriesList.get(position);
 
                 new Thread(new Runnable() {
                     public void run() {
                         try {
-                            final Connection conn = new Connection(context, gallery2.getSlug());
+                            final Connection conn = new Connection(context, gallery1.getSlug());
                             final String json = conn.discoverGallery();
 
                             Log.d(LOG_TARGET, json);
 
-                            gallery2.updateDetails(json);
+                            gallery1.updateDetails(json);
                         }
                         catch(Exception e) {
                             Log.d(LOG_TARGET, Log.getStackTraceString(e));
                         }
 
-                        preferences.setLastSlugs(gallery2);
+                        preferences.setLastSlugs(gallery1);
 
                         runOnUiThread(new Runnable() {
                             public void run() {
@@ -130,6 +129,18 @@ public class GalleryListActivity extends Activity {
                         });
                     }
                 }).start();
+
+                break;
+
+            case R.id.share_url:
+                Intent intent2 = new Intent();
+                String url2 = "https://imgshr.space/!" + galleriesList.get(position).getSlug();
+
+                intent2.setAction(Intent.ACTION_SEND);
+                intent2.putExtra(Intent.EXTRA_TEXT, url2);
+                intent2.setType("text/plain");
+
+                startActivity(intent2);
 
                 break;
         }
