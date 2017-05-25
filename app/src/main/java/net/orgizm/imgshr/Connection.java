@@ -143,10 +143,10 @@ public class Connection
 	}
 
 	public String uploadImages(ArrayList<Uri> imageUris) throws IOException, InstantiationException, IllegalAccessException  {
-        out = new BufferedOutputStream(conn.getOutputStream());
         setConnectionPropertiesForUpload();
+		out = new BufferedOutputStream(conn.getOutputStream());
 
-        int n = imageUris.size();
+		int n = imageUris.size();
 		for(int i = 0; i < n; i++) {
 			uploadImage(imageUris.get(i), i, n);
 		}
