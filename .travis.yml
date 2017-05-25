@@ -1,9 +1,6 @@
 language: android
 jdk: oraclejdk8
 
-env:
-  - RELEASE_STORE_FILE=1 RELEASE_STORE_PASSWORD=1 RELEASE_KEY_ALIAS=1 RELEASE_KEY_PASSWORD=1
-
 android:
   components:
     - tools
