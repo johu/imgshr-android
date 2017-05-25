@@ -123,7 +123,7 @@ public class GalleryListActivity extends Activity {
 
                         runOnUiThread(new Runnable() {
                             public void run() {
-                                Toast.makeText(context, R.string.gallery_saved, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, R.string.gallery_updated, Toast.LENGTH_SHORT).show();
                                 adapter.notifyDataSetChanged();
                             }
                         });
