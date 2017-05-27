@@ -50,7 +50,7 @@ public class GalleryAddActivity extends Activity
                     }
                 });
 
-                preferences.setLastSlugs(gallery);
+                preferences.addGallery(gallery);
                 finish();
             }
         }).start();

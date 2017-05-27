@@ -59,14 +59,14 @@ public class ShareActivity extends Activity
 		preferences = new Preferences(context);
 
 		if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
-			String[] slugs = preferences.getLastSlugsAsArray();
-			if (slugs != null) {
-				if (slugs.length > 0) {
-					String lastSlug = slugs[slugs.length - 1];
-					slug.setText(lastSlug, TextView.BufferType.EDITABLE);
+			Gallery[] galleries = preferences.getGalleriesAsArray();
+			if (galleries != null) {
+				if (galleries.length > 0) {
+					String lastGallery = galleries[galleries.length - 1].toString();
+					slug.setText(lastGallery, TextView.BufferType.EDITABLE);
 				}
 
-				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, slugs);
+				ArrayAdapter<Gallery> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, galleries);
 				slug.setAdapter(adapter);
 			}
 		}
@@ -83,7 +83,7 @@ public class ShareActivity extends Activity
 			}
 
 			if (newSlug != null) {
-				preferences.setLastSlugs(new Gallery(newSlug));
+				preferences.addGallery(new Gallery(newSlug));
 				Toast.makeText(context, getString(R.string.gallery_saved), Toast.LENGTH_LONG).show();
 				finish();
 			}
@@ -160,7 +160,7 @@ public class ShareActivity extends Activity
 			imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
 		}
 
-		preferences.setLastSlugs(new Gallery(slug));
+		preferences.addGallery(new Gallery(slug));
 
 		if (imageUris != null) {
 			Connection conn = new Connection(context, slug, nManager, nBuilder, nId);

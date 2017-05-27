@@ -36,6 +36,16 @@ public class Preferences {
         return galleries;
     }
 
+    public Gallery[] getGalleriesAsArray() {
+        Set<Gallery> galleries = getGalleries();
+
+        if (galleries == null) {
+            return null;
+        } else {
+            return galleries.toArray(new Gallery[galleries.size()]);
+        }
+    }
+
     public Set<String> getLastSlugs() {
         Set<Gallery> galleries = getGalleries();
         Set<String> slugs = new HashSet<>();
@@ -47,17 +57,7 @@ public class Preferences {
         return slugs;
     }
 
-    public String[] getLastSlugsAsArray() {
-        Set<String> slugs = getLastSlugs();
-
-        if (slugs == null) {
-            return null;
-        } else {
-            return slugs.toArray(new String[slugs.size()]);
-        }
-    }
-
-    public void setLastSlugs(Gallery gallery) {
+    public void addGallery(Gallery gallery) {
         if (gallery == null) return;
 
         List<Gallery> newGalleries = new ArrayList<>(getGalleries());
@@ -73,17 +73,19 @@ public class Preferences {
         if (position == -1) {
             newGalleries.add(gallery);
         } else {
-            newGalleries.get(position).updateDetails(gallery);
+            if (gallery.getName() != null) {
+                newGalleries.get(position).updateDetails(gallery);
+            }
         }
 
-        setLastSlugs(newGalleries);
+        setGalleries(newGalleries);
     }
 
-    public void setLastSlugs(List<Gallery> galleries) {
-        setLastSlugs(new HashSet<>(galleries));
+    public void setGalleries(List<Gallery> galleries) {
+        setGalleries(new HashSet<>(galleries));
     }
 
-    public void setLastSlugs(Set<Gallery> galleries) {
+    public void setGalleries(Set<Gallery> galleries) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putStringSet(GALLERIES_KEY, serializeGalleries(galleries));
         editor.apply();

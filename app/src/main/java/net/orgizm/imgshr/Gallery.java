@@ -29,6 +29,14 @@ public class Gallery implements Comparable<Gallery> {
         this.slug = slug;
     }
 
+    public String toString() {
+        if (this.getName() == null) {
+            return this.getSlug();
+        } else {
+            return this.getName();
+        }
+    }
+
     public void updateDetails(Gallery gallery) {
         this.name = gallery.getName();
     }

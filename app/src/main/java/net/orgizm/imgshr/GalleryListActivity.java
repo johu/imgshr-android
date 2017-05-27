@@ -88,7 +88,7 @@ public class GalleryListActivity extends Activity {
                 galleriesList.remove(position);
                 adapter.notifyDataSetChanged();
 
-                preferences.setLastSlugs(galleriesList);
+                preferences.setGalleries(galleriesList);
 
                 Toast.makeText(getApplicationContext(), R.string.gallery_deleted, Toast.LENGTH_SHORT).show();
 
@@ -119,7 +119,7 @@ public class GalleryListActivity extends Activity {
                             Log.d(LOG_TARGET, Log.getStackTraceString(e));
                         }
 
-                        preferences.setLastSlugs(gallery1);
+                        preferences.addGallery(gallery1);
 
                         runOnUiThread(new Runnable() {
                             public void run() {
