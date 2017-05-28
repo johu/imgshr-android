@@ -12,17 +12,18 @@ import java.util.List;
 import java.util.Set;
 
 public class Preferences {
-    final String PREFERENCES_NAME = "imgshr";
-    final String GALLERIES_KEY = "galleries";
+    final private String PREFERENCES_NAME = "imgshr";
+    final private String GALLERIES_KEY = "galleries";
+    final private String LOG_TARGET = "net.orgizm.imgshr";
 
     private SharedPreferences preferences;
     private Gson gson = new Gson();
 
-    public Preferences(Context context) {
+    Preferences(Context context) {
         preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
     }
 
-    public Set<Gallery> getGalleries() {
+    Set<Gallery> getGalleries() {
         Set<String> serializedGalleries = preferences.getStringSet(GALLERIES_KEY, null);
         Set<Gallery> galleries = new HashSet<>();
 
@@ -36,7 +37,7 @@ public class Preferences {
         return galleries;
     }
 
-    public Gallery[] getGalleriesAsArray() {
+    Gallery[] getGalleriesAsArray() {
         Set<Gallery> galleries = getGalleries();
 
         if (galleries == null) {
@@ -46,18 +47,7 @@ public class Preferences {
         }
     }
 
-    public Set<String> getLastSlugs() {
-        Set<Gallery> galleries = getGalleries();
-        Set<String> slugs = new HashSet<>();
-
-        for (Gallery gallery : galleries) {
-            slugs.add(gallery.getSlug());
-        }
-
-        return slugs;
-    }
-
-    public void addGallery(Gallery gallery) {
+    void addGallery(Gallery gallery) {
         if (gallery == null) return;
 
         List<Gallery> newGalleries = new ArrayList<>(getGalleries());
@@ -81,17 +71,33 @@ public class Preferences {
         setGalleries(newGalleries);
     }
 
-    public void setGalleries(List<Gallery> galleries) {
+    void addGallery(Context context, String slug) {
+        final Gallery gallery = new Gallery(slug);
+
+        try {
+            final Connection conn = new Connection(context, slug);
+            final String json = conn.discoverGallery();
+
+            gallery.updateDetails(json);
+        }
+        catch(Exception e) {
+            Log.d(LOG_TARGET, Log.getStackTraceString(e));
+        }
+
+        addGallery(gallery);
+    }
+
+    void setGalleries(List<Gallery> galleries) {
         setGalleries(new HashSet<>(galleries));
     }
 
-    public void setGalleries(Set<Gallery> galleries) {
+    void setGalleries(Set<Gallery> galleries) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putStringSet(GALLERIES_KEY, serializeGalleries(galleries));
         editor.apply();
     }
 
-    public Set<String> serializeGalleries(Set<Gallery> galleries) {
+    Set<String> serializeGalleries(Set<Gallery> galleries) {
         Set<String> serializedGalleries = new HashSet<>();
 
         for (Gallery gallery : galleries) {

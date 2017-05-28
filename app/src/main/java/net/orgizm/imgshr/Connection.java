@@ -35,7 +35,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-public class Connection
+class Connection
 {
     private final String DEFAULT_API_URL = "https://imgshr.space/api";
 
@@ -44,7 +44,6 @@ public class Connection
 	private OutputStream out;
 	private NotificationManager nManager;
 	private NotificationCompat.Builder nBuilder;
-    private String slug;
 
 	private final String PARAM    = "picture[image][]";
 	private final String BOUNDARY = "*****";
@@ -52,19 +51,15 @@ public class Connection
 
 	private int nId = 0;
 
-	public Connection(Context context, String slug) throws Exception {
+	Connection(Context context, String slug) throws Exception {
 		this(context, slug, null, null, null, 0);
 	}
 
-	public Connection(Context context, String slug, NotificationManager nManager, NotificationCompat.Builder nBuilder) throws Exception {
-		this(context, slug, null, nManager, nBuilder, 0);
-	}
-
-	public Connection(Context context, String slug, NotificationManager nManager, NotificationCompat.Builder nBuilder, int nId) throws Exception {
+	Connection(Context context, String slug, NotificationManager nManager, NotificationCompat.Builder nBuilder, int nId) throws Exception {
 		this(context, slug, null, nManager, nBuilder, nId);
 	}
 
-	public Connection(Context context, String slug, String endpoint, NotificationManager nManager, NotificationCompat.Builder nBuilder, int nId) throws Exception {
+	Connection(Context context, String slug, String endpoint, NotificationManager nManager, NotificationCompat.Builder nBuilder, int nId) throws Exception {
 		URL url;
 
 		Boolean https   = false;
@@ -83,7 +78,6 @@ public class Connection
 		this.nManager = nManager;
 		this.nBuilder = nBuilder;
 		this.nId = nId;
-        this.slug = slug;
 
 		url = new URL(endpoint + "/!" + slug);
 
@@ -95,7 +89,7 @@ public class Connection
 		}
     }
 
-	public void disconnect() {
+	void disconnect() {
 		conn.disconnect();
 	}
 
@@ -113,10 +107,10 @@ public class Connection
 		out.write(CRLF.getBytes());
 
 		byte[] buffer = new byte[256];
-		int bytesRead = 0;
+		int bytesRead;
 		int size = file.available();
 		int written = 0;
-		int percent = 0;
+		int percent;
 		int lastPercent = 0;
 
 		String overall = "";
@@ -142,7 +136,7 @@ public class Connection
 		out.write(CRLF.getBytes());
 	}
 
-	public String uploadImages(ArrayList<Uri> imageUris) throws IOException, InstantiationException, IllegalAccessException  {
+	String uploadImages(ArrayList<Uri> imageUris) throws IOException, InstantiationException, IllegalAccessException  {
         setConnectionPropertiesForUpload();
 		out = new BufferedOutputStream(conn.getOutputStream());
 
@@ -237,7 +231,7 @@ public class Connection
 		HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
 	}
 
-	public void setConnectionPropertiesForUpload() throws ProtocolException {
+	private void setConnectionPropertiesForUpload() throws ProtocolException {
 		conn.setDoOutput(true);
 		conn.setChunkedStreamingMode(0);
 
@@ -246,11 +240,11 @@ public class Connection
 		conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + BOUNDARY);
 	}
 
-    public void setConnectionPropertiesForDiscover() throws ProtocolException {
+    private void setConnectionPropertiesForDiscover() throws ProtocolException {
         conn.setRequestMethod("GET");
     }
 
-    public String discoverGallery() throws IOException {
+    String discoverGallery() throws IOException {
         setConnectionPropertiesForDiscover();
 
         int code = conn.getResponseCode();

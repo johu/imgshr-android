@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class GalleryListActivity extends Activity {
     final String LOG_TARGET = "net.orgizm.imgshr";

@@ -3,15 +3,12 @@ package net.orgizm.imgshr;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class GalleryAddActivity extends Activity
 {
-    final String LOG_TARGET = "net.orgizm.imgshr";
-
     private Context context;
 
     private TextView slug;
@@ -32,17 +29,7 @@ public class GalleryAddActivity extends Activity
         new Thread(new Runnable() {
             public void run() {
                 final String s = slug.getText().toString();
-                final Gallery gallery = new Gallery(s);
-
-                try {
-                    final Connection conn = new Connection(context, s);
-                    final String json = conn.discoverGallery();
-
-                    gallery.updateDetails(json);
-                }
-                catch(Exception e) {
-                    Log.d(LOG_TARGET, Log.getStackTraceString(e));
-                }
+                preferences.addGallery(context, s);
 
                 runOnUiThread(new Runnable() {
                     public void run() {
@@ -50,7 +37,6 @@ public class GalleryAddActivity extends Activity
                     }
                 });
 
-                preferences.addGallery(gallery);
                 finish();
             }
         }).start();

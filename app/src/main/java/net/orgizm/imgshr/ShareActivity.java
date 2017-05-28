@@ -90,6 +90,17 @@ public class ShareActivity extends Activity
 		}
 	}
 
+	private String getSlug(String slugOrName) {
+        Gallery gallery = null;
+        for (Gallery g : preferences.getGalleries()) {
+            if (g.getName().equals(slugOrName)) {
+                gallery = g;
+            }
+        }
+
+        return gallery == null ? slugOrName : gallery.getSlug();
+    }
+
 	public void uploadImageCallback(View view) throws Exception {
 		new Thread(new Runnable() {
 			public void run() {
@@ -101,8 +112,10 @@ public class ShareActivity extends Activity
 					}
 				});
 
-				final String slug = ((InstantAutoCompleteTextView) findViewById(R.id.slug)).getText().toString();
+				final String slugOrName = ((InstantAutoCompleteTextView) findViewById(R.id.slug)).getText().toString();
 				final int nId = rand.nextInt(2^16);
+
+                final String slug = getSlug(slugOrName);
 
 				nBuilder.setSmallIcon(R.mipmap.ic_launcher)
 					.setContentTitle(getString(R.string.uploading, " (" + slug + ")"))
@@ -151,9 +164,9 @@ public class ShareActivity extends Activity
 		String message = null;
 
 		if (Intent.ACTION_SEND.equals(action)) {
-			Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+			Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
 			if (imageUri != null) {
-				imageUris = new ArrayList<Uri>();
+				imageUris = new ArrayList<>();
 				imageUris.add(imageUri);
 			}
 		} else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {

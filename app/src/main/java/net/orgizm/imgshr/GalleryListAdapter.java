@@ -1,7 +1,6 @@
 package net.orgizm.imgshr;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,14 +10,14 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class GalleryListAdapter extends RecyclerView.Adapter<GalleryListAdapter.ViewHolder> {
+class GalleryListAdapter extends RecyclerView.Adapter<GalleryListAdapter.ViewHolder> {
     private List<Gallery> galleriesList;
     private int position;
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener, View.OnClickListener {
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener, View.OnClickListener {
         public TextView slug;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
 
             slug = (TextView) view.findViewById(R.id.slug);
@@ -43,7 +42,7 @@ public class GalleryListAdapter extends RecyclerView.Adapter<GalleryListAdapter.
         }
     }
 
-    public GalleryListAdapter(List<Gallery> galleriesList) {
+    GalleryListAdapter(List<Gallery> galleriesList) {
         this.galleriesList = galleriesList;
     }
 
@@ -55,11 +54,11 @@ public class GalleryListAdapter extends RecyclerView.Adapter<GalleryListAdapter.
         return new ViewHolder(itemView);
     }
 
-    public int getPosition() {
+    int getPosition() {
         return position;
     }
 
-    public void setPosition(int position) {
+    private void setPosition(int position) {
         this.position = position;
     }
 
