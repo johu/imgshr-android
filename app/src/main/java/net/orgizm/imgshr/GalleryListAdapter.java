@@ -67,9 +67,9 @@ class GalleryListAdapter extends RecyclerView.Adapter<GalleryListAdapter.ViewHol
         Gallery gallery = galleriesList.get(position);
 
         String slug = gallery.getSlug();
-        String name = gallery.getName();
+        String shortName = gallery.getShortName();
 
-        holder.slug.setText(name == null ? slug : name);
+        holder.slug.setText(shortName == null ? slug : shortName);
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override

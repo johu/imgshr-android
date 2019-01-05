@@ -93,7 +93,7 @@ public class ShareActivity extends Activity
 	private String getSlug(String slugOrName) {
         Gallery gallery = null;
         for (Gallery g : preferences.getGalleries()) {
-            if (g.getName() != null && g.getName().equals(slugOrName)) {
+            if (g.getShortName() != null && g.getShortName().equals(slugOrName)) {
                 gallery = g;
             }
         }

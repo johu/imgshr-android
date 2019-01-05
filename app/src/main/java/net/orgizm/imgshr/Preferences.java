@@ -63,7 +63,7 @@ public class Preferences {
         if (position == -1) {
             newGalleries.add(gallery);
         } else {
-            if (gallery.getName() != null) {
+            if (gallery.getShortName() != null) {
                 newGalleries.get(position).updateDetails(gallery);
             }
         }

@@ -5,19 +5,19 @@ import android.support.annotation.NonNull;
 import com.google.gson.Gson;
 
 class Gallery implements Comparable<Gallery> {
-    private String name;
+    private String shortName;
     private String slug;
 
     Gallery(String slug) {
         this.slug = slug;
     }
 
-    public String getName() {
-        return name;
+    public String getShortName() {
+        return shortName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 
     public String getSlug() {
@@ -29,15 +29,15 @@ class Gallery implements Comparable<Gallery> {
     }
 
     public String toString() {
-        if (this.getName() == null) {
+        if (this.getShortName() == null) {
             return this.getSlug();
         } else {
-            return this.getName();
+            return this.getShortName();
         }
     }
 
     void updateDetails(Gallery gallery) {
-        this.name = gallery.getName();
+        this.shortName = gallery.getShortName();
     }
 
     void updateDetails(String json) {
@@ -46,7 +46,7 @@ class Gallery implements Comparable<Gallery> {
     }
 
     public int compareTo(@NonNull Gallery other) {
-        if (this.getName().equals(other.getName())) {
+        if (this.getShortName().equals(other.getShortName())) {
             return 0;
         } else {
             return -1;
