@@ -14,5 +14,5 @@ script:
   - ./gradlew lintDebug
 
 after_success:
-  - mv app/build/outputs/apk/app-debug.apk imgshr-debug-${TRAVIS_COMMIT:0:7}.apk
-  - curl -k -X POST -F "file=@imgshr-debug-${TRAVIS_COMMIT:0:7}.apk" -F "token=$RELEASE_TOKEN" -F "version=${TRAVIS_COMMIT:0:7}" -F "branch=$TRAVIS_BRANCH" https://imgshr.space/releases
+  - mv app/build/outputs/apk/debug/app-debug.apk imgshr-debug-${TRAVIS_COMMIT:0:7}.apk
+  - curl -k -X POST -F "download=@imgshr-debug-${TRAVIS_COMMIT:0:7}.apk" -F "token=$RELEASE_TOKEN" -F "version=${TRAVIS_COMMIT:0:7}" -F "branch=$TRAVIS_BRANCH" https://imgshr.space/releases
