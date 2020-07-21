@@ -14,4 +14,7 @@
     <string name="add_gallery">Add gallery</string>
     <string name="update_details">Update details</string>
     <string name="share_url">Share URL</string>
+    <string name="notification_name">Image Uploads</string>
+    <string name="notification_description">Shows the image upload progress and status as notifications</string>
+    <string name="upload_successful">Upload successfully finished!</string>
 </resources>

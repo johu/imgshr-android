@@ -1,10 +1,12 @@
 package net.orgizm.imgshr;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -54,7 +56,16 @@ public class ShareActivity extends Activity
 		status = (TextView) findViewById(R.id.status);
 
 		nManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		nBuilder = new NotificationCompat.Builder(context);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			Log.i("net.orgizm.imgshr", "ANDROID O");
+
+			NotificationChannel nChannel = new NotificationChannel("uploads", getString(R.string.notification_name), NotificationManager.IMPORTANCE_LOW);
+			nChannel.setDescription(getString(R.string.notification_description));
+			nManager.createNotificationChannel(nChannel);
+		}
+
+		nBuilder = new NotificationCompat.Builder(context, "uploads");
 
 		preferences = new Preferences(context);
 
@@ -129,7 +140,11 @@ public class ShareActivity extends Activity
 					@Override
 					public void run() {
 						try {
-							final String message = uploadImages(slug, nId);
+							String message = uploadImages(slug, nId);
+
+							if (message.equals("200 OK")) {
+								message = getString(R.string.upload_successful);
+							}
 
 							nBuilder.setContentText(message)
 								.setProgress(0, 0, false)
